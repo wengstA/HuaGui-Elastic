@@ -1,0 +1,673 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Printed Waistbands – Huagui Elastic</title>
+  <style>
+    /* ── Design tokens ───────────────────────────── */
+    :root {
+      --wine:    #7f0e29;
+      --wine-dk: #5a0a1d;
+      --accent:  #7f0e29;
+      --text:    #111111;
+      --muted:   #6a6a6a;
+      --soft:    #f7f6f4;
+      --line:    #e5e5e5;
+      --card:    #ffffff;
+      --shadow:  0 8px 28px rgba(0,0,0,.07);
+      --max:     1480px;
+      --radius:  6px;
+    }
+
+    /* ── Reset ───────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: Arial, Helvetica, sans-serif; color: var(--text); background: #fff; font-size: 15px; line-height: 1.55; }
+    a { color: inherit; text-decoration: none; }
+    img { display: block; max-width: 100%; }
+    button { font-family: inherit; cursor: pointer; }
+    ul { list-style: none; }
+
+    /* ── Nav ─────────────────────────────────────── */
+    .topbar { position: sticky; top: 0; z-index: 100; background: #fff; border-bottom: 1px solid var(--line); }
+    .nav {
+      max-width: var(--max); margin: 0 auto; padding: 0 32px;
+      height: 72px; display: flex; align-items: center; gap: 32px;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+    .brand-logo { width: 48px; height: 48px; object-fit: contain; }
+    .brand-name { color: var(--wine); font-weight: 900; font-size: 20px; letter-spacing: 1.6px; line-height: 1; white-space: nowrap; }
+    .menu { display: flex; align-items: center; gap: 6px; flex: 1; justify-content: center; }
+    .menu a {
+      height: 72px; display: flex; align-items: center; padding: 0 12px;
+      font-size: 13px; font-weight: 700; letter-spacing: .3px; white-space: nowrap;
+      border-bottom: 3px solid transparent; transition: color .15s, border-color .15s;
+    }
+    .menu a:hover { color: var(--wine); }
+    .menu a.active { color: var(--wine); border-bottom-color: var(--wine); }
+    .nav-actions { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+    .lang-select {
+      height: 38px; border: 1px solid var(--line); border-radius: var(--radius);
+      background: #fff; padding: 0 10px; font-size: 14px; font-weight: 600; color: #333;
+    }
+    .btn-quote-nav {
+      height: 38px; padding: 0 18px; border: none; border-radius: var(--radius);
+      background: var(--accent); color: #fff; font-size: 13px; font-weight: 800; letter-spacing: .3px;
+    }
+
+    /* ── Page shell ──────────────────────────────── */
+    .page { max-width: var(--max); margin: 0 auto; padding: 24px 32px 64px; }
+
+    /* ── Breadcrumb ──────────────────────────────── */
+    .breadcrumb {
+      display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+      font-size: 12px; font-weight: 700; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 20px; letter-spacing: .3px;
+    }
+    .breadcrumb a:hover { color: var(--wine); }
+    .breadcrumb .current { color: var(--text); }
+    .breadcrumb-sep { color: #ccc; }
+
+    /* ── Category filter strip ───────────────────── */
+    .filter-strip {
+      border: 1px solid var(--line); border-radius: var(--radius);
+      padding: 14px 18px; margin-bottom: 28px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .filter-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+    .filter-label { font-size: 11px; font-weight: 900; letter-spacing: .8px; text-transform: uppercase; color: var(--muted); flex-shrink: 0; min-width: 110px; }
+    .pills { display: flex; flex-wrap: wrap; gap: 7px; }
+    .pill {
+      border: 1px solid #ddd; border-radius: 999px; background: #fff;
+      color: #444; padding: 7px 14px; font-size: 13px; font-weight: 700;
+      cursor: pointer; transition: .15s; white-space: nowrap;
+    }
+    .pill:hover { border-color: var(--wine); color: var(--wine); }
+    .pill.active-cat { border-color: var(--wine); background: var(--wine); color: #fff; }
+    .pill.active-tag { border-color: var(--accent); background: var(--accent); color: #fff; }
+
+    /* ── Product layout grid ─────────────────────── */
+    .product-grid {
+      display: grid;
+      grid-template-columns: 320px minmax(0, 1fr) 112px;
+      grid-template-rows: auto;
+      gap: 24px;
+      align-items: start;
+    }
+
+    /* col 1 – thumbnails */
+    .thumb-col { grid-column: 3; grid-row: 1 / 3; align-self: start; }
+    .thumb-section-label {
+      font-size: 10px; font-weight: 900; letter-spacing: .8px;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 8px;
+    }
+    .thumb-section + .thumb-section { margin-top: 16px; }
+    .thumb-list { display: flex; flex-direction: column; gap: 10px; }
+    .thumb-btn {
+      position: relative; width: 100%; aspect-ratio: 1 / 1;
+      border: none; border-radius: var(--radius); background: var(--soft);
+      overflow: hidden; cursor: pointer; padding: 0;
+      border: 1px solid var(--line);
+      box-shadow: inset 0 0 0 3px transparent;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .thumb-btn:hover { border-color: #cfcfcf; }
+    .thumb-btn.active { border-color: var(--wine); box-shadow: inset 0 0 0 3px rgba(127,14,41,.12); }
+    .thumb-btn img { width: 100%; height: 100%; object-fit: cover; }
+    .thumb-btn.is-contain img { object-fit: contain; }
+    .thumb-index {
+      position: absolute; top: 5px; left: 6px;
+      width: 18px; height: 18px; border-radius: 4px;
+      background: rgba(0,0,0,.35); color: #fff;
+      font-size: 11px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .thumb-btn.active .thumb-index { background: var(--wine); }
+    .thumb-name {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: linear-gradient(transparent, rgba(0,0,0,.55));
+      color: #fff; font-size: 10px; font-weight: 700;
+      padding: 14px 5px 5px; text-align: center; line-height: 1.2;
+    }
+
+    /* col 2 – main image */
+    .main-img-col { grid-column: 2; grid-row: 1; }
+    .main-img-wrap {
+      background: var(--soft); border: 1px solid var(--line);
+      border-radius: var(--radius); overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      width: 100%; aspect-ratio: 4 / 3; min-height: 0; position: relative;
+    }
+    #mainImage {
+      display: block; width: 100%; height: 100%;
+      object-fit: contain; transition: opacity .2s;
+    }
+    .img-caption-bar {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 14px; border-top: 1px solid var(--line);
+      background: #fff; font-size: 12px; color: var(--muted); font-weight: 600;
+    }
+    .img-caption-bar svg { width: 14px; height: 14px; stroke: var(--muted); fill: none; stroke-width: 2; flex-shrink: 0; }
+
+    /* col 2 – product details */
+    .tabs-col { grid-column: 2; grid-row: 2; }
+    .detail-grid { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 16px; }
+    .detail-card { border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: #fff; }
+    .detail-title {
+      padding: 13px 18px; border-bottom: 1px solid var(--line);
+      background: var(--soft); color: var(--wine);
+      font-size: 13px; font-weight: 900; letter-spacing: .4px; text-transform: uppercase;
+    }
+    .detail-body { padding: 18px 20px; }
+
+    .feature-list { padding: 0; }
+    .feature-list li {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 9px 0; border-bottom: 1px solid var(--soft); font-size: 14px; color: #333; line-height: 1.45;
+    }
+    .feature-list li:last-child { border-bottom: none; }
+    .feature-dot {
+      width: 7px; height: 7px; border-radius: 50%; background: var(--accent);
+      flex-shrink: 0; margin-top: 5px;
+    }
+
+    .spec-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .spec-table tr { border-bottom: 1px solid var(--soft); }
+    .spec-table tr:last-child { border-bottom: none; }
+    .spec-table td { padding: 10px 12px; vertical-align: top; }
+    .spec-table td:first-child { font-weight: 800; color: #555; width: 36%; background: var(--soft); }
+    .spec-table td:last-child { color: #222; }
+
+    /* col 1 – product sidebar */
+    .sidebar { grid-column: 1; grid-row: 1 / 3; }
+    .sidebar-inner { position: sticky; top: 88px; display: flex; flex-direction: column; gap: 16px; }
+
+    .product-header { padding: 0 0 4px; }
+    .product-category { font-size: 11px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; color: var(--wine); margin-bottom: 9px; }
+    .product-title { font-family: Georgia, 'Times New Roman', serif; font-size: 32px; font-weight: 700; line-height: 1.12; letter-spacing: 0; color: var(--text); margin-bottom: 12px; }
+    .product-desc { font-size: 15px; color: var(--muted); line-height: 1.65; margin-bottom: 16px; }
+    .highlight-pills { display: flex; flex-wrap: wrap; gap: 7px; }
+    .highlight-pill {
+      display: flex; align-items: center; gap: 5px;
+      border: 1px solid var(--line); border-radius: 999px;
+      background: var(--soft); padding: 5px 11px;
+      font-size: 12px; font-weight: 700; color: #444;
+    }
+    .highlight-pill svg { width: 13px; height: 13px; stroke: var(--wine); fill: none; stroke-width: 2; }
+
+    .divider { border: none; border-top: 1px solid var(--line); }
+
+    /* custom design card */
+    .custom-card { border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+    .custom-card-head {
+      background: var(--wine); color: #fff;
+      padding: 12px 16px; font-size: 13px; font-weight: 800;
+      text-transform: uppercase; letter-spacing: .4px;
+    }
+    .custom-card-body { padding: 16px; background: #fff; }
+    .custom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+    .custom-item {
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      padding: 12px 6px; border: 1px solid var(--line); border-radius: var(--radius);
+      background: var(--soft); font-size: 11px; font-weight: 800; color: #444;
+      text-transform: uppercase; letter-spacing: .3px; text-align: center;
+    }
+    .custom-item svg { width: 22px; height: 22px; stroke: var(--wine); fill: none; stroke-width: 1.8; }
+
+    /* CTA button */
+    .btn-quote {
+      width: 100%; height: 50px; border: none; border-radius: var(--radius);
+      background: var(--accent); color: #fff;
+      font-size: 15px; font-weight: 900; letter-spacing: .4px;
+      display: flex; align-items: center; justify-content: center; gap: 9px;
+      transition: background .15s, transform .1s;
+    }
+    .btn-quote:hover { background: #d44d1a; }
+    .btn-quote:active { transform: scale(.98); }
+    .btn-quote svg { width: 18px; height: 18px; stroke: #fff; fill: none; stroke-width: 2; }
+
+    /* contact links */
+    .contact-block { display: flex; flex-direction: column; gap: 8px; }
+    .contact-link {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--radius);
+      background: #fff; transition: border-color .15s;
+    }
+    .contact-link:hover { border-color: var(--wine); }
+    .contact-icon {
+      width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .contact-icon.whatsapp { background: #e8f5e9; }
+    .contact-icon.wechat   { background: #e8f5e9; }
+    .contact-icon.email    { background: #eef4ff; }
+    .contact-icon.phone    { background: #fce4ec; }
+    .contact-icon svg { width: 18px; height: 18px; fill: none; stroke-width: 2; }
+    .contact-icon.whatsapp svg { stroke: #2e7d32; }
+    .contact-icon.wechat svg   { stroke: #178b49; }
+    .contact-icon.email svg    { stroke: #2f5f9f; }
+    .contact-icon.phone    svg { stroke: var(--wine); }
+    .contact-info strong { display: block; font-size: 14px; font-weight: 800; color: var(--text); }
+    .contact-info span   { font-size: 12px; color: var(--muted); }
+
+    /* ── Responsive ──────────────────────────────── */
+    @media (max-width: 1100px) {
+      .product-grid { grid-template-columns: 280px minmax(0, 1fr) 88px; gap: 18px; }
+      .product-title { font-size: 28px; }
+    }
+    @media (max-width: 860px) {
+      .nav { padding: 0 20px; }
+      .menu { display: none; }
+      .page { padding: 18px 20px 48px; }
+      .product-grid {
+        grid-template-columns: 1fr 72px;
+        grid-template-rows: auto auto auto;
+      }
+      .main-img-col { grid-column: 1; grid-row: 1; }
+      .thumb-col  { grid-column: 2; grid-row: 1; }
+      .tabs-col   { grid-column: 1 / -1; grid-row: 2; }
+      .sidebar    { grid-column: 1 / -1; grid-row: 3; }
+      .sidebar-inner { position: static; }
+      .detail-grid { grid-template-columns: 1fr; }
+      .product-title { font-size: 26px; }
+    }
+    @media (max-width: 560px) {
+      .filter-row { flex-direction: column; align-items: flex-start; }
+      .filter-label { min-width: auto; }
+      .product-grid { grid-template-columns: 1fr 64px; gap: 12px; }
+      .custom-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══ NAV ═══════════════════════════════════════ -->
+<header class="topbar">
+  <nav class="nav" aria-label="Main navigation">
+    <a class="brand" href="index.html">
+      <img class="brand-logo" src="assets/huagui-logo.png" alt="Huagui Elastic logo">
+      <div class="brand-name">HUAGUI ELASTIC</div>
+    </a>
+
+    <div class="menu" role="menubar">
+      <a href="index.html" role="menuitem">Home</a>
+      <a href="products.html" class="active" role="menuitem">Products</a>
+      <a href="custom.html" role="menuitem">Custom Solutions</a>
+      <a href="factory.html" role="menuitem">Factory</a>
+      <a href="exhibitions.html" role="menuitem">Exhibitions</a>
+      <a href="about.html" role="menuitem">About Us</a>
+      <a href="contact.html" role="menuitem">Contact</a>
+    </div>
+
+    <div class="nav-actions">
+      <select class="lang-select" aria-label="Language">
+        <option>🇬🇧 English</option>
+        <option>Español</option>
+        <option>العربية</option>
+        <option>Русский</option>
+      </select>
+      <button class="btn-quote-nav">Request a Quote</button>
+    </div>
+  </nav>
+</header>
+
+<!-- ═══ PAGE ═══════════════════════════════════════ -->
+<main class="page">
+
+  <!-- Breadcrumb -->
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a href="index.html">Home</a>
+    <span class="breadcrumb-sep">›</span>
+    <a href="products.html">Products</a>
+    <span class="breadcrumb-sep">›</span>
+    <a href="products.html?cat=mens">Men's Underwear Elastics</a>
+    <span class="breadcrumb-sep">›</span>
+    <span class="current">Printed Waistbands</span>
+  </nav>
+
+  <!-- Category filter -->
+  <section class="filter-strip" aria-label="Product filters">
+    <div class="filter-row">
+      <span class="filter-label">Category</span>
+      <div class="pills">
+        <button class="pill active-cat">Men's Underwear Elastics</button>
+        <button class="pill">Women's Underwear Elastics</button>
+        <button class="pill">Bra &amp; Lingerie Elastics</button>
+        <button class="pill">Activewear Elastics</button>
+      </div>
+    </div>
+    <div class="filter-row">
+      <span class="filter-label">Filter</span>
+      <div class="pills">
+        <button class="pill">Jacquard</button>
+        <button class="pill active-tag">Printed</button>
+        <button class="pill">Plain</button>
+        <button class="pill">Fold Over</button>
+        <button class="pill">Picot</button>
+        <button class="pill">Silicone Grip</button>
+        <button class="pill">Bra Strap</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Product grid -->
+  <div class="product-grid">
+
+    <!-- ── Col 3: Thumbnails ── -->
+    <aside class="thumb-col" id="galleryThumbs" aria-label="Product image gallery"></aside>
+
+    <!-- ── Col 2 row 1: Main image ── -->
+    <section class="main-img-col" aria-label="Main product image">
+      <div class="main-img-wrap">
+        <img id="mainImage" src="" alt="">
+      </div>
+      <div class="img-caption-bar">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="M16.5 16.5l4 4"/><path d="M11 8v6M8 11h6"/></svg>
+        <span id="captionText">Front &amp; Back</span>
+      </div>
+    </section>
+
+    <!-- ── Col 2 row 2: Feature / Spec details ── -->
+    <div class="tabs-col">
+      <div class="detail-grid">
+        <section class="detail-card" aria-labelledby="detail-features">
+          <h2 class="detail-title" id="detail-features">Features</h2>
+          <div class="detail-body">
+          <ul class="feature-list">
+            <li><span class="feature-dot" aria-hidden="true"></span>Soft and smooth hand feel for all-day comfort</li>
+            <li><span class="feature-dot" aria-hidden="true"></span>Excellent elasticity and shape recovery</li>
+            <li><span class="feature-dot" aria-hidden="true"></span>Durable heat-transfer printing, fade resistant</li>
+            <li><span class="feature-dot" aria-hidden="true"></span>Skin-friendly, hypoallergenic material</li>
+            <li><span class="feature-dot" aria-hidden="true"></span>Available in multiple widths and fully custom colors</li>
+          </ul>
+          </div>
+        </section>
+
+        <section class="detail-card" aria-labelledby="detail-specifications">
+          <h2 class="detail-title" id="detail-specifications">Specifications</h2>
+          <div class="detail-body">
+          <table class="spec-table" aria-label="Product specifications">
+            <tr><td>Material</td><td>Polyester / Nylon + Spandex</td></tr>
+            <tr><td>Width</td><td>20 mm – 50 mm (Customizable)</td></tr>
+            <tr><td>Printing</td><td>Heat Transfer Printing</td></tr>
+            <tr><td>Color</td><td>Custom Colors Available</td></tr>
+            <tr><td>MOQ</td><td>6,000 Meters per Design</td></tr>
+            <tr><td>Usage</td><td>Men's Underwear, Boxer Briefs, Trunks</td></tr>
+          </table>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- ── Col 3: Sidebar ── -->
+    <aside class="sidebar">
+      <div class="sidebar-inner">
+
+        <!-- Product header -->
+        <div class="product-header">
+          <p class="product-category">Men's Underwear Elastics · Printed</p>
+          <h1 class="product-title">Printed Waistbands</h1>
+          <p class="product-desc">High-quality printed waistband with excellent elasticity, color fastness, and a soft hand feel. Perfect for boxer briefs, trunks, and everyday underwear.</p>
+          <div class="highlight-pills">
+            <span class="highlight-pill">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22C6.5 22 2 17.5 2 12S6.5 2 12 2s10 4.5 10 10-4.5 10-10 10z"/><path d="M8 12s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+              Soft &amp; Comfortable
+            </span>
+            <span class="highlight-pill">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="2"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+              Vivid Color
+            </span>
+            <span class="highlight-pill">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              High Elasticity
+            </span>
+          </div>
+        </div>
+
+        <hr class="divider">
+
+        <!-- Custom design card -->
+        <div class="custom-card">
+          <div class="custom-card-head">Custom Your Design</div>
+          <div class="custom-card-body">
+            <div class="custom-grid">
+              <div class="custom-item">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h4"/></svg>
+                Custom Logo
+              </div>
+              <div class="custom-item">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="9" cy="9" r="1.5"/><circle cx="15" cy="9" r="1.5"/><circle cx="9" cy="15" r="1.5"/><circle cx="15" cy="15" r="1.5"/></svg>
+                Custom Color
+              </div>
+              <div class="custom-item">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16M4 6h8M4 18h12"/></svg>
+                Custom Width
+              </div>
+              <div class="custom-item">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7l8-4 8 4-8 4-8-4z"/><path d="M4 12l8 4 8-4"/><path d="M4 17l8 4 8-4"/></svg>
+                Custom Packing
+              </div>
+            </div>
+
+            <button class="btn-quote" id="quoteBtn">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="1"/><path d="M3 7l9 6 9-6"/></svg>
+              Request a Quote
+            </button>
+          </div>
+        </div>
+
+        <!-- Contact links -->
+        <div class="contact-block">
+          <a class="contact-link" href="https://wa.me/86XXXXXXXXXX" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
+            <div class="contact-icon whatsapp">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+            </div>
+            <div class="contact-info">
+              <strong>WhatsApp</strong>
+              <span>Click to chat directly</span>
+            </div>
+          </a>
+          <a class="contact-link" href="#" aria-label="Contact on WeChat">
+            <div class="contact-icon wechat">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 18.5c-4.1 0-7.5-2.8-7.5-6.2S5.4 6 9.5 6s7.5 2.8 7.5 6.3-3.4 6.2-7.5 6.2z"/><path d="M14.5 16.5c.9 2 3.1 3.5 5.5 3.5.8 0 1.5-.1 2.2-.4l-.8-1.9c.4-.6.6-1.3.6-2 0-2.2-2.1-4-4.8-4"/><circle cx="7" cy="11" r=".8"/><circle cx="12" cy="11" r=".8"/></svg>
+            </div>
+            <div class="contact-info">
+              <strong>WeChat</strong>
+              <span>Scan or add our WeChat</span>
+            </div>
+          </a>
+          <a class="contact-link" href="mailto:sales@huaguielastic.com" aria-label="Email us">
+            <div class="contact-icon email">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+            </div>
+            <div class="contact-info">
+              <strong>E-mail</strong>
+              <span>sales@huaguielastic.com</span>
+            </div>
+          </a>
+          <a class="contact-link" href="tel:+86XXXXXXXXXX" aria-label="Call us">
+            <div class="contact-icon phone">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.26h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 8.82a16 16 0 0 0 6.07 6.07l1.12-1.12a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            </div>
+            <div class="contact-info">
+              <strong>Call Us</strong>
+              <span>+86 XXX XXXX XXXX</span>
+            </div>
+          </a>
+        </div>
+
+      </div>
+    </aside>
+
+  </div><!-- /product-grid -->
+</main>
+
+<script>
+  /* ── Image gallery ── */
+  const productGalleryImages = [
+    {
+      group: 'Product',
+      src: 'assets/lady/front-back.jpeg',
+      caption: 'Front & Back',
+      thumbLabel: 'Front & Back',
+      alt: 'Printed waistband front and back view',
+      fit: 'contain'
+    },
+    {
+      group: 'Product',
+      src: 'assets/lady/front.jpeg',
+      caption: 'Front View',
+      thumbLabel: 'Front',
+      alt: 'Printed waistband front view',
+      fit: 'contain'
+    },
+    {
+      group: 'Product',
+      src: 'assets/lady/back.jpeg',
+      caption: 'Back View',
+      thumbLabel: 'Back',
+      alt: 'Printed waistband back view',
+      fit: 'contain'
+    },
+    {
+      group: 'Colors',
+      src: 'assets/lady/colors.jpeg',
+      caption: 'Multi-Color Options',
+      thumbLabel: 'Colors',
+      alt: 'Printed waistband multi-color options',
+      fit: 'cover',
+      optional: true
+    },
+    {
+      group: 'Applied',
+      src: 'assets/lady/application.jpeg',
+      caption: 'Application on Underwear',
+      thumbLabel: 'Application',
+      alt: 'Printed waistband application on underwear',
+      fit: 'cover'
+    }
+  ];
+
+  const mainImg    = document.getElementById('mainImage');
+  const captionTxt = document.getElementById('captionText');
+  const galleryEl  = document.getElementById('galleryThumbs');
+  let thumbBtns    = [];
+
+  function imageExists(src) {
+    return new Promise(resolve => {
+      const image = new Image();
+      image.onload = () => resolve(true);
+      image.onerror = () => resolve(false);
+      image.src = src;
+    });
+  }
+
+  async function getAvailableGalleryImages(images) {
+    const checks = await Promise.all(images.map(async image => {
+      if (!image.optional) return image;
+      return await imageExists(image.src) ? image : null;
+    }));
+    return checks.filter(Boolean);
+  }
+
+  function renderGallery(images) {
+    galleryEl.innerHTML = '';
+    let imageIndex = 0;
+    const groups = images.reduce((result, image) => {
+      if (!result.has(image.group)) result.set(image.group, []);
+      result.get(image.group).push(image);
+      return result;
+    }, new Map());
+
+    groups.forEach((groupImages, groupName) => {
+      const section = document.createElement('div');
+      section.className = 'thumb-section';
+
+      const label = document.createElement('p');
+      label.className = 'thumb-section-label';
+      label.textContent = groupName;
+
+      const list = document.createElement('div');
+      list.className = 'thumb-list';
+
+      groupImages.forEach(image => {
+        const button = document.createElement('button');
+        button.className = `thumb-btn${image.fit === 'contain' ? ' is-contain' : ''}`;
+        button.type = 'button';
+        button.setAttribute('aria-label', image.caption);
+        button.dataset.index = imageIndex;
+
+        const index = document.createElement('div');
+        index.className = 'thumb-index';
+        index.textContent = imageIndex + 1;
+
+        const thumb = document.createElement('img');
+        thumb.src = image.src;
+        thumb.alt = image.alt;
+
+        const name = document.createElement('div');
+        name.className = 'thumb-name';
+        name.textContent = image.thumbLabel;
+
+        button.append(index, thumb, name);
+        list.appendChild(button);
+        imageIndex += 1;
+      });
+
+      section.append(label, list);
+      galleryEl.appendChild(section);
+    });
+
+    thumbBtns = Array.from(document.querySelectorAll('.thumb-btn'));
+  }
+
+  function setActive(index, images) {
+    const image = images[index];
+    if (!image) return;
+
+    mainImg.style.opacity = '0';
+    setTimeout(() => {
+      mainImg.src = image.src;
+      mainImg.alt = image.alt;
+      mainImg.style.opacity = '1';
+    }, 120);
+
+    captionTxt.textContent = image.caption;
+    thumbBtns.forEach(b => b.classList.remove('active'));
+    const activeBtn = thumbBtns.find(btn => Number(btn.dataset.index) === index);
+    if (activeBtn) activeBtn.classList.add('active');
+  }
+
+  getAvailableGalleryImages(productGalleryImages).then(availableGalleryImages => {
+    renderGallery(availableGalleryImages);
+    setActive(0, availableGalleryImages);
+    thumbBtns.forEach(btn => {
+      btn.addEventListener('click',      () => setActive(Number(btn.dataset.index), availableGalleryImages));
+      btn.addEventListener('mouseenter', () => setActive(Number(btn.dataset.index), availableGalleryImages));
+      btn.addEventListener('focus',      () => setActive(Number(btn.dataset.index), availableGalleryImages));
+    });
+  });
+
+  /* ── Tabs ── */
+  const tabBtns   = Array.from(document.querySelectorAll('.tab-btn'));
+  const tabPanels = Array.from(document.querySelectorAll('.tab-panel'));
+
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = btn.getAttribute('aria-controls');
+      tabBtns.forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected', 'false'); });
+      tabPanels.forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      btn.setAttribute('aria-selected', 'true');
+      document.getElementById(target).classList.add('active');
+    });
+  });
+
+  /* ── Quote button (placeholder) ── */
+  document.getElementById('quoteBtn').addEventListener('click', () => {
+    window.location.href = 'contact.html?product=printed-waistbands';
+  });
+</script>
+</body>
+</html>

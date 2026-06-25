@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Browse Huagui Elastic products including men's underwear elastics, women's underwear elastics, bra and lingerie elastics, and activewear elastics.">
+  <title>Huagui Elastic - Product Catalog</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <div id="app">
+    <main>
+      <section class="section">
+        <div class="container">
+          <div class="catalog-toolbar">
+            <div>
+              <p class="section-label">Product Catalog</p>
+              <h2>Elastic Webbing Products</h2>
+              <p class="section-lead">Main categories stay broad and easy to scan. Use craft tags to find product types without creating deep catalog folders.</p>
+            </div>
+            <p class="product-count" id="productCount">9 elastic solutions</p>
+          </div>
+
+          <div class="filter-group">
+            <h3>Main Categories</h3>
+            <div class="filter-tabs" id="categoryTabs">
+              <button class="filter-tab active" data-cat="all">All</button>
+              <button class="filter-tab" data-cat="mens">Men's Underwear Elastics</button>
+              <button class="filter-tab" data-cat="womens">Women's Underwear Elastics</button>
+              <button class="filter-tab" data-cat="lingerie">Bra & Lingerie Elastics</button>
+              <button class="filter-tab" data-cat="activewear">Activewear Elastics</button>
+            </div>
+          </div>
+
+          <div class="filter-group">
+            <h3>Product Tags</h3>
+            <div class="filter-tabs" id="tagTabs">
+              <button class="filter-tab active" data-tag="all">All Tags</button>
+              <button class="filter-tab" data-tag="jacquard">Jacquard</button>
+              <button class="filter-tab" data-tag="printed">Printed</button>
+              <button class="filter-tab" data-tag="plain">Plain</button>
+              <button class="filter-tab" data-tag="fold-over">Fold Over</button>
+              <button class="filter-tab" data-tag="picot">Picot</button>
+              <button class="filter-tab" data-tag="silicone-grip">Silicone Grip</button>
+              <button class="filter-tab" data-tag="bra-strap">Bra Strap</button>
+            </div>
+          </div>
+
+          <div class="products-grid" id="productsGrid"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>
