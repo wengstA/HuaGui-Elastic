@@ -140,11 +140,32 @@ const products = [
     name: 'Printed Waistbands',
     category: 'mens',
     categoryLabel: "Men's Underwear Elastics",
-    image: 'assets/images/product-jacquard-waistbands-main.jpg',
+    image: 'assets/images/printed-waistband-front-back.jpeg',
     gallery: [
-      'assets/images/product-jacquard-waistbands-main.jpg',
-      'assets/images/product-elastic-sample-board.jpg',
-      'assets/images/factory-weaving-production.jpg'
+      {
+        group: 'Product',
+        src: 'assets/images/printed-waistband-front-back.jpeg',
+        label: 'Front & Back',
+        alt: 'Printed waistband front and back view'
+      },
+      {
+        group: 'Product',
+        src: 'assets/images/printed-waistband-front.jpeg',
+        label: 'Front',
+        alt: 'Printed waistband front view'
+      },
+      {
+        group: 'Product',
+        src: 'assets/images/printed-waistband-back.jpeg',
+        label: 'Back',
+        alt: 'Printed waistband back view'
+      },
+      {
+        group: 'Applied',
+        src: 'assets/images/printed-waistband-application.jpeg',
+        label: 'Application',
+        alt: 'Printed waistband application on underwear'
+      }
     ],
     tags: ['printed', 'waistband'],
     specs: ['25-45mm width', 'Nylon/Polyester/Spandex', 'Logo print', 'Soft handfeel'],
@@ -354,7 +375,27 @@ function initProductDetailPage() {
   const params = new URLSearchParams(window.location.search);
   const slug = params.get('slug') || 'printed-waistbands';
   const product = products.find(p => p.slug === slug) || products[0];
-  const gallery = product.gallery && product.gallery.length ? product.gallery : [product.image];
+  const gallery = (product.gallery && product.gallery.length ? product.gallery : [product.image]).map((item, index) => {
+    if (typeof item === 'string') {
+      return {
+        group: 'Gallery',
+        src: item,
+        label: `View ${index + 1}`,
+        alt: `${product.name} view ${index + 1}`
+      };
+    }
+    return {
+      group: item.group || 'Gallery',
+      src: item.src,
+      label: item.label || item.thumbLabel || `View ${index + 1}`,
+      alt: item.alt || `${product.name} ${item.label || `view ${index + 1}`}`
+    };
+  });
+  const galleryGroups = gallery.reduce((groups, image, index) => {
+    if (!groups.has(image.group)) groups.set(image.group, []);
+    groups.get(image.group).push({ ...image, index });
+    return groups;
+  }, new Map());
 
   document.title = `Huagui Elastic - ${product.name}`;
   page.innerHTML = `
@@ -393,36 +434,42 @@ function initProductDetailPage() {
             </div>
           </aside>
 
-          <section class="detail-main-image" aria-label="Main product image">
-            <div class="product-main-image"><img src="${gallery[0]}" alt="${product.name}"></div>
-            <div class="image-note">Click thumbnails to view available product angles. A single strong product image is enough for products without a full photo set.</div>
+          <section class="detail-main-column" aria-label="Product details">
+            <div class="product-main-image"><img src="${gallery[0].src}" alt="${gallery[0].alt}"></div>
+            <div class="image-note"><strong data-gallery-caption>${gallery[0].label}</strong><span>Click thumbnails to view available product angles.</span></div>
+            <div class="detail-info-grid compact-detail-grid">
+              <div class="detail-panel">
+                <h3>Key Specs</h3>
+                <ul>${product.specs.map(item => `<li>${item}</li>`).join('')}</ul>
+              </div>
+              <div class="detail-panel">
+                <h3>Applications</h3>
+                <ul>${product.applications.map(item => `<li>${item}</li>`).join('')}</ul>
+              </div>
+              <div class="detail-panel">
+                <h3>Customization</h3>
+                <ul>${product.customOptions.map(item => `<li>${item}</li>`).join('')}</ul>
+              </div>
+            </div>
           </section>
 
           <aside class="detail-thumbs" aria-label="Product image gallery">
             <p>Gallery</p>
             <div class="product-thumbs">
-              ${gallery.map((src, index) => `<button class="${index === 0 ? 'active' : ''}" data-gallery-src="${src}" aria-label="View image ${index + 1}"><img src="${src}" alt="${product.name} view ${index + 1}"></button>`).join('')}
+              ${Array.from(galleryGroups.entries()).map(([group, images]) => `
+                <div class="product-thumb-section">
+                  <span class="product-thumb-group">${group}</span>
+                  ${images.map(image => `
+                    <button class="${image.index === 0 ? 'active' : ''}" data-gallery-src="${image.src}" data-gallery-alt="${image.alt}" data-gallery-label="${image.label}" aria-label="View ${image.label}">
+                      <span class="product-thumb-index">${image.index + 1}</span>
+                      <img src="${image.src}" alt="${image.alt}">
+                      <span class="product-thumb-name">${image.label}</span>
+                    </button>
+                  `).join('')}
+                </div>
+              `).join('')}
             </div>
           </aside>
-        </div>
-      </div>
-    </section>
-
-    <section class="section" style="background: var(--color-surface);">
-      <div class="container">
-        <div class="detail-info-grid compact-detail-grid">
-          <div class="detail-panel">
-            <h3>Key Specs</h3>
-            <ul>${product.specs.map(item => `<li>${item}</li>`).join('')}</ul>
-          </div>
-          <div class="detail-panel">
-            <h3>Applications</h3>
-            <ul>${product.applications.map(item => `<li>${item}</li>`).join('')}</ul>
-          </div>
-          <div class="detail-panel">
-            <h3>Customization</h3>
-            <ul>${product.customOptions.map(item => `<li>${item}</li>`).join('')}</ul>
-          </div>
         </div>
       </div>
     </section>
@@ -441,7 +488,11 @@ function initProductDetailPage() {
     button.addEventListener('click', () => {
       page.querySelectorAll('[data-gallery-src]').forEach(item => item.classList.remove('active'));
       button.classList.add('active');
-      page.querySelector('.detail-main-image .product-main-image img').src = button.dataset.gallerySrc;
+      const mainImage = page.querySelector('.detail-main-column .product-main-image img');
+      const caption = page.querySelector('[data-gallery-caption]');
+      mainImage.src = button.dataset.gallerySrc;
+      mainImage.alt = button.dataset.galleryAlt;
+      if (caption) caption.textContent = button.dataset.galleryLabel;
     });
   });
 }

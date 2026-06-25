@@ -13,20 +13,23 @@
 <body>
   <div id="app">
     <main>
-      <section class="section">
+      <section class="factory-hero">
         <div class="container">
-          <div class="split-panel">
-            <div>
+          <div class="factory-hero-grid">
+            <div class="factory-hero-copy">
               <p class="section-label">Factory</p>
-              <h2>Elastic Production With Repeat-Order Consistency</h2>
+              <h1>Elastic Production With Repeat-Order Consistency</h1>
               <p class="section-lead">Huagui's factory page now shows real production areas, yarn preparation, machine operation, and quality inspection steps for elastic webbing orders.</p>
-              <ul class="feature-list">
-                <li><strong>Product Development</strong><span>Translate artwork and reference samples into elastic construction plans.</span></li>
-                <li><strong>Production Control</strong><span>Manage width, tension, color, logo clarity, surface finish, and roll packing.</span></li>
-                <li><strong>Quality Review</strong><span>Check appearance, elasticity, handfeel, color consistency, and packing before shipment.</span></li>
-              </ul>
             </div>
-            <img src="assets/images/factory-workshop-machines.jpg" alt="Huagui Elastic workshop machines" loading="lazy">
+            <figure class="factory-hero-media">
+              <img src="assets/images/factory-workshop-machines.jpg" alt="Huagui Elastic workshop machines">
+              <figcaption>Workshop view for elastic webbing production</figcaption>
+            </figure>
+            <ul class="feature-list factory-hero-features">
+              <li><strong>Product Development</strong><span>Translate artwork and reference samples into elastic construction plans.</span></li>
+              <li><strong>Production Control</strong><span>Manage width, tension, color, logo clarity, surface finish, and roll packing.</span></li>
+              <li><strong>Quality Review</strong><span>Check appearance, elasticity, handfeel, color consistency, and packing before shipment.</span></li>
+            </ul>
           </div>
         </div>
       </section>
@@ -34,23 +37,35 @@
       <section class="section" style="background: var(--color-surface);">
         <div class="container">
           <p class="section-label">Production Focus</p>
-          <h2 style="text-align:center;">What Buyers Usually Care About</h2>
-          <div class="advantages-grid">
-            <div class="advantage-card">
-              <img class="advantage-img" src="assets/images/factory-weaving-production.jpg" alt="Elastic weaving production machine" loading="lazy">
-              <h3>Stable Width</h3>
-              <p>Elastic width and edge finish are controlled for garment sewing and size consistency.</p>
-            </div>
-            <div class="advantage-card">
-              <img class="advantage-img" src="assets/images/factory-yarn-overview.jpg" alt="Yarn preparation area" loading="lazy">
-              <h3>Color Matching</h3>
-              <p>Brand colors and garment fabric colors can be matched during sample development.</p>
-            </div>
-            <div class="advantage-card">
-              <img class="advantage-img" src="assets/images/quality-rubbing-test.jpg" alt="Elastic rubbing fastness test" loading="lazy">
-              <h3>Quality Inspection</h3>
-              <p>Color fastness, surface condition, and product consistency are checked before shipment.</p>
-            </div>
+          <div class="section-heading-row">
+            <h2>What Buyers Usually Care About</h2>
+            <p>Large-volume underwear and apparel orders need stable color, repeatable tension, clean edges, and reliable pre-shipment checks.</p>
+          </div>
+          <div class="factory-focus-grid">
+            <article class="factory-focus-card factory-focus-card-large">
+              <img src="assets/images/factory-weaving-production.jpg" alt="Elastic weaving production machine" loading="lazy">
+              <div>
+                <p class="material">Production Control</p>
+                <h3>Stable Width & Edge Finish</h3>
+                <p>Elastic width, logo clarity, edge finish, and stretch tension are controlled for garment sewing and repeat-order consistency.</p>
+              </div>
+            </article>
+            <article class="factory-focus-card">
+              <img src="assets/images/factory-yarn-overview.jpg" alt="Yarn preparation area" loading="lazy">
+              <div>
+                <p class="material">Sample Development</p>
+                <h3>Color Matching</h3>
+                <p>Brand colors and garment fabric colors can be matched during sample development.</p>
+              </div>
+            </article>
+            <article class="factory-focus-card">
+              <img src="assets/images/quality-rubbing-test.jpg" alt="Elastic rubbing fastness test" loading="lazy">
+              <div>
+                <p class="material">Quality Review</p>
+                <h3>Inspection Before Shipment</h3>
+                <p>Color fastness, surface condition, and product consistency are checked before shipment.</p>
+              </div>
+            </article>
           </div>
         </div>
       </section>
@@ -58,27 +73,30 @@
       <section class="section">
         <div class="container">
           <p class="section-label">Quality Control</p>
-          <h2 style="text-align:center;">Testing Before Shipment</h2>
-          <div class="products-grid">
-            <article class="product-card">
-              <div class="product-card-img"><img src="assets/images/quality-rubbing-test.jpg" alt="Rubbing color fastness testing" loading="lazy"></div>
-              <div class="product-card-body">
+          <div class="section-heading-row section-heading-centered">
+            <h2>Testing Before Shipment</h2>
+            <p>Practical inspection steps help buyers reduce risk before bulk rolls leave the factory.</p>
+          </div>
+          <div class="factory-quality-grid">
+            <article class="factory-quality-card">
+              <img src="assets/images/quality-rubbing-test.jpg" alt="Rubbing color fastness testing" loading="lazy">
+              <div>
                 <p class="material">Color Fastness</p>
                 <h3>Rubbing Test</h3>
                 <div class="specs"><span>Surface check</span><span>Color transfer</span><span>Lab equipment</span></div>
               </div>
             </article>
-            <article class="product-card">
-              <div class="product-card-img"><img src="assets/images/quality-perspiration-test.jpg" alt="Perspiration color fastness testing" loading="lazy"></div>
-              <div class="product-card-body">
+            <article class="factory-quality-card">
+              <img src="assets/images/quality-perspiration-test.jpg" alt="Perspiration color fastness testing" loading="lazy">
+              <div>
                 <p class="material">Wear Condition</p>
                 <h3>Perspiration Test</h3>
                 <div class="specs"><span>Underwear use</span><span>Color stability</span><span>Quality review</span></div>
               </div>
             </article>
-            <article class="product-card">
-              <div class="product-card-img"><img src="assets/images/quality-washing-test.jpg" alt="Washing color fastness testing" loading="lazy"></div>
-              <div class="product-card-body">
+            <article class="factory-quality-card">
+              <img src="assets/images/quality-washing-test.jpg" alt="Washing color fastness testing" loading="lazy">
+              <div>
                 <p class="material">Durability</p>
                 <h3>Washing Test</h3>
                 <div class="specs"><span>Wash resistance</span><span>Repeat orders</span><span>Bulk control</span></div>
