@@ -396,6 +396,23 @@ function initProductDetailPage() {
     groups.get(image.group).push({ ...image, index });
     return groups;
   }, new Map());
+  const productFeatures = [
+    'Soft and smooth handfeel for comfortable skin contact',
+    'Stable elasticity and recovery for repeat garment production',
+    'Custom logo artwork, repeat layout, width, and color support',
+    'Suitable for underwear waistbands, briefs, trunks, and loungewear',
+    'Sample development and bulk order review before shipment'
+  ];
+  const specificationRows = [
+    ['Material', product.specs[1] || 'Nylon / Polyester / Spandex'],
+    ['Width', product.specs[0] || 'Custom width available'],
+    ['Printing', product.specs[2] || 'Custom printed logo'],
+    ['Handfeel', product.specs[3] || 'Soft skin-contact finish'],
+    ['Color', 'Pantone or fabric color matching available'],
+    ['Elasticity', 'Custom stretch tension and recovery control'],
+    ['Usage', product.applications.join(', ')],
+    ['Packing', product.customOptions[3] || 'Roll length and carton packing']
+  ];
 
   document.title = `Huagui Elastic - ${product.name}`;
   page.innerHTML = `
@@ -435,21 +452,27 @@ function initProductDetailPage() {
           </aside>
 
           <section class="detail-main-column" aria-label="Product details">
-            <div class="product-main-image"><img src="${gallery[0].src}" alt="${gallery[0].alt}"></div>
             <div class="image-note"><strong data-gallery-caption>${gallery[0].label}</strong><span>Click thumbnails to view available product angles.</span></div>
-            <div class="detail-info-grid compact-detail-grid">
-              <div class="detail-panel">
-                <h3>Key Specs</h3>
-                <ul>${product.specs.map(item => `<li>${item}</li>`).join('')}</ul>
+            <div class="product-main-image"><img src="${gallery[0].src}" alt="${gallery[0].alt}"></div>
+            <div class="product-info-table">
+              <div class="product-info-head">
+                <h2>Product Details</h2>
+                <p>Buyer-focused product features and fabric parameters for quotation review.</p>
               </div>
-              <div class="detail-panel">
-                <h3>Applications</h3>
-                <ul>${product.applications.map(item => `<li>${item}</li>`).join('')}</ul>
-              </div>
-              <div class="detail-panel">
-                <h3>Customization</h3>
-                <ul>${product.customOptions.map(item => `<li>${item}</li>`).join('')}</ul>
-              </div>
+              <section class="product-detail-block" aria-labelledby="product-features-title">
+                <h3 id="product-features-title">Features</h3>
+                <ul class="product-feature-list">
+                  ${productFeatures.map(feature => `<li><span class="feature-check" aria-hidden="true"></span>${feature}</li>`).join('')}
+                </ul>
+              </section>
+              <section class="product-detail-block product-spec-block" aria-labelledby="product-specifications-title">
+                <h3 id="product-specifications-title">Specifications</h3>
+                <table class="product-spec-table" aria-label="Product specifications">
+                  <tbody>
+                    ${specificationRows.map(([label, value]) => `<tr><th scope="row">${label}</th><td>${value}</td></tr>`).join('')}
+                  </tbody>
+                </table>
+              </section>
             </div>
           </section>
 
