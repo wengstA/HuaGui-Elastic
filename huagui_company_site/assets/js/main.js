@@ -1,3 +1,68 @@
+// ========== Global Contact ==========
+const CONTACT_INFO = {
+  email: 'sales@huaguielastic.com',
+  address: 'No. 1 Jintian Road, Xiashan, Chaonan District, Shantou, Guangdong, China',
+  tel: '+86 0754 8776 3266',
+  people: [
+    {
+      name: 'Mr. Zheng',
+      mobileWechat: '+86 13822883266',
+      whatsapp: '+86 13822883266'
+    },
+    {
+      name: 'Mr. Zhou',
+      mobileWechat: '+86 13502917266',
+      whatsapp: '+86 13502917266'
+    }
+  ]
+};
+
+window.HUAGUI_CONTACT_INFO = CONTACT_INFO;
+
+function getContactCardsHtml() {
+  const contactRows = CONTACT_INFO.people.map(person => `
+    <p>${person.name}<br>Mobile / WeChat: ${person.mobileWechat}<br>WhatsApp: ${person.whatsapp}</p>
+  `).join('');
+
+  return `
+    <div class="contact-info-card">
+      <div class="contact-info-icon">@</div>
+      <div>
+        <h4>Email</h4>
+        <p>${CONTACT_INFO.email}</p>
+      </div>
+    </div>
+    <div class="contact-info-card">
+      <div class="contact-info-icon">T</div>
+      <div>
+        <h4>Tel</h4>
+        <p>${CONTACT_INFO.tel}</p>
+      </div>
+    </div>
+    <div class="contact-info-card">
+      <div class="contact-info-icon">W</div>
+      <div>
+        <h4>Mobile / WeChat / WhatsApp</h4>
+        ${contactRows}
+      </div>
+    </div>
+    <div class="contact-info-card">
+      <div class="contact-info-icon">CN</div>
+      <div>
+        <h4>Address</h4>
+        <p>${CONTACT_INFO.address}</p>
+      </div>
+    </div>
+  `;
+}
+
+function renderGlobalContactInfo() {
+  const contactInfo = document.querySelector('[data-contact-info]');
+  if (contactInfo) {
+    contactInfo.innerHTML = getContactCardsHtml();
+  }
+}
+
 // ========== Header/Footer Injection ==========
 function injectFavicons() {
   const icons = [
@@ -83,9 +148,10 @@ function injectFooter() {
           <div class="footer-links">
             <h4>Contact</h4>
             <ul>
-              <li>sales@huaguielastic.com</li>
-              <li>WhatsApp / WeChat available</li>
-              <li>Guangdong, China</li>
+              <li>${CONTACT_INFO.email}</li>
+              <li>Tel: ${CONTACT_INFO.tel}</li>
+              <li>${CONTACT_INFO.people.map(person => `${person.name}: ${person.mobileWechat}`).join('</li><li>')}</li>
+              <li>${CONTACT_INFO.address}</li>
               <li>Sample and bulk order support</li>
             </ul>
           </div>
@@ -478,18 +544,20 @@ function initProductDetailPage() {
             <div class="quick-contact">
               <a href="contact.html" class="quick-contact-card">
                 <span class="quick-contact-icon email"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></span>
-                <span class="quick-contact-text"><strong>Email</strong><span>sales@huaguielastic.com</span></span>
+                <span class="quick-contact-text"><strong>Email</strong><span>${CONTACT_INFO.email}</span></span>
               </a>
               <a href="contact.html" class="quick-contact-card">
                 <span class="quick-contact-icon chat"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></span>
-                <span class="quick-contact-text"><strong>WhatsApp / WeChat</strong><span>Send artwork and sample photos</span></span>
+                <span class="quick-contact-text"><strong>WhatsApp / WeChat</strong><span>${CONTACT_INFO.people.map(person => `${person.name}: ${person.mobileWechat}`).join(' / ')}</span></span>
               </a>
             </div>
           </aside>
 
           <section class="detail-main-column" aria-label="Product details">
-            <div class="image-note"><strong data-gallery-caption>${gallery[0].label}</strong><span>Click thumbnails to view available product angles.</span></div>
-            <div class="product-main-image"><img class="${gallery[0].rotate ? 'is-rotated' : ''}" src="${gallery[0].src}" alt="${gallery[0].alt}"></div>
+            <div class="product-gallery-card">
+              <div class="image-note"><strong data-gallery-caption>${gallery[0].label}</strong><span>Click thumbnails to view available product angles.</span></div>
+              <div class="product-main-image"><img class="${gallery[0].rotate ? 'is-rotated' : ''}" src="${gallery[0].src}" alt="${gallery[0].alt}"></div>
+            </div>
             <div class="product-info-table">
               <div class="product-info-head">
                 <h2>Product Details</h2>
@@ -569,6 +637,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderProductCards('featuredProducts', featuredProducts);
     initProductsPage();
     initProductDetailPage();
+    renderGlobalContactInfo();
 
     const contactForm = document.getElementById('contactForm');
     if (contactForm) {
