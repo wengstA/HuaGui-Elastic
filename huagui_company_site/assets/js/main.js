@@ -1,4 +1,23 @@
 // ========== Header/Footer Injection ==========
+function injectFavicons() {
+  const icons = [
+    { rel: 'icon', type: 'image/png', href: 'assets/images/huagui-logo.png' },
+    { rel: 'apple-touch-icon', href: 'assets/images/huagui-logo.png' }
+  ];
+  icons.forEach(icon => {
+    if (document.head.querySelector(`link[rel="${icon.rel}"]`)) return;
+    const link = document.createElement('link');
+    Object.entries(icon).forEach(([key, value]) => link.setAttribute(key, value));
+    document.head.appendChild(link);
+  });
+  if (!document.head.querySelector('meta[name="theme-color"]')) {
+    const theme = document.createElement('meta');
+    theme.name = 'theme-color';
+    theme.content = '#880830';
+    document.head.appendChild(theme);
+  }
+}
+
 function injectHeader() {
   const path = window.location.pathname;
   const isActive = (page) => path.endsWith(page) || (page === 'index.html' && path.endsWith('/')) ? ' class="active"' : '';
@@ -388,7 +407,8 @@ function initProductDetailPage() {
       group: item.group || 'Gallery',
       src: item.src,
       label: item.label || item.thumbLabel || `View ${index + 1}`,
-      alt: item.alt || `${product.name} ${item.label || `view ${index + 1}`}`
+      alt: item.alt || `${product.name} ${item.label || `view ${index + 1}`}`,
+      rotate: Boolean(item.rotate)
     };
   });
   const galleryGroups = gallery.reduce((groups, image, index) => {
@@ -397,11 +417,11 @@ function initProductDetailPage() {
     return groups;
   }, new Map());
   const productFeatures = [
-    'Soft and smooth handfeel for comfortable skin contact',
-    'Stable elasticity and recovery for repeat garment production',
-    'Custom logo artwork, repeat layout, width, and color support',
-    'Suitable for underwear waistbands, briefs, trunks, and loungewear',
-    'Sample development and bulk order review before shipment'
+    'Stable stretch and recovery',
+    'Vivid, wash-resistant printing',
+    'Soft skin-contact comfort',
+    'Custom widths, logos, and colors',
+    'Bulk-ready quality consistency'
   ];
   const specificationRows = [
     ['Material', product.specs[1] || 'Nylon / Polyester / Spandex'],
@@ -419,41 +439,57 @@ function initProductDetailPage() {
     <section class="product-detail-shell">
       <div class="container">
         <div class="breadcrumb">
-          <a href="index.html">Home</a><span>/</span><a href="products.html">Products</a><span>/</span><a href="products.html?cat=${product.category}">${product.categoryLabel}</a><span>/</span><strong>${product.name}</strong>
-        </div>
-
-        <div class="detail-filter-strip">
-          <div><strong>Category</strong><a href="products.html?cat=${product.category}">${product.categoryLabel}</a></div>
-          <div><strong>Tags</strong>${product.tags.map(tag => `<a href="products.html?tag=${tag}">${formatTag(tag)}</a>`).join('')}</div>
+          <a href="index.html">Home</a><span>/</span><a href="products.html">Products</a><span>/</span><strong>${product.categoryLabel}</strong>
         </div>
 
         <div class="product-detail-layout">
           <aside class="detail-sidebar">
             <p class="section-label">${product.categoryLabel}</p>
             <h1>${product.name}</h1>
+            <div class="detail-title-dash"></div>
             <p class="product-intro">${product.intro}</p>
+            <div class="detail-highlight-icons" aria-label="Product highlights">
+              <div>
+                <span class="detail-highlight-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 4C11 4 6 8 5 16c5 1 11-2 14-12Z"/><path d="M5 16c2-3 5-5 9-7"/></svg></span>
+                <span>Soft Comfort</span>
+              </div>
+              <div>
+                <span class="detail-highlight-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="9" cy="8" r="1.5"/><circle cx="15" cy="10" r="1.5"/><circle cx="10" cy="15" r="1.5"/><circle cx="16" cy="16" r="1.5"/></svg></span>
+                <span>Vivid Color</span>
+              </div>
+              <div>
+                <span class="detail-highlight-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8c3 2 5 2 8 0s5-2 8 0"/><path d="M4 12c3 2 5 2 8 0s5-2 8 0"/><path d="M4 16c3 2 5 2 8 0s5-2 8 0"/></svg></span>
+                <span>High Elasticity</span>
+              </div>
+            </div>
             <div class="tag-row">${product.tags.map(tag => `<span>${formatTag(tag)}</span>`).join('')}</div>
 
             <div class="custom-summary">
               <h3>Custom Your Design</h3>
               <div class="custom-summary-grid">
-                <span>Custom Logo</span>
-                <span>Custom Color</span>
-                <span>Custom Width</span>
-                <span>Custom Packing</span>
+                <span><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h4"/></svg>Custom Logo</span>
+                <span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="9" cy="9" r="1.5"/><circle cx="15" cy="9" r="1.5"/><circle cx="9" cy="15" r="1.5"/><circle cx="15" cy="15" r="1.5"/></svg>Custom Color</span>
+                <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16M4 6h8M4 18h12"/></svg>Custom Width</span>
+                <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7l8-4 8 4-8 4-8-4z"/><path d="M4 12l8 4 8-4"/><path d="M4 17l8 4 8-4"/></svg>Custom Packing</span>
               </div>
               <a href="contact.html" class="btn btn-primary">Request Quote</a>
             </div>
 
             <div class="quick-contact">
-              <a href="contact.html"><strong>Email</strong><span>sales@huaguielastic.com</span></a>
-              <a href="contact.html"><strong>WhatsApp / WeChat</strong><span>Send artwork and sample photos</span></a>
+              <a href="contact.html" class="quick-contact-card">
+                <span class="quick-contact-icon email"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></span>
+                <span class="quick-contact-text"><strong>Email</strong><span>sales@huaguielastic.com</span></span>
+              </a>
+              <a href="contact.html" class="quick-contact-card">
+                <span class="quick-contact-icon chat"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></span>
+                <span class="quick-contact-text"><strong>WhatsApp / WeChat</strong><span>Send artwork and sample photos</span></span>
+              </a>
             </div>
           </aside>
 
           <section class="detail-main-column" aria-label="Product details">
             <div class="image-note"><strong data-gallery-caption>${gallery[0].label}</strong><span>Click thumbnails to view available product angles.</span></div>
-            <div class="product-main-image"><img src="${gallery[0].src}" alt="${gallery[0].alt}"></div>
+            <div class="product-main-image"><img class="${gallery[0].rotate ? 'is-rotated' : ''}" src="${gallery[0].src}" alt="${gallery[0].alt}"></div>
             <div class="product-info-table">
               <div class="product-info-head">
                 <h2>Product Details</h2>
@@ -483,9 +519,9 @@ function initProductDetailPage() {
                 <div class="product-thumb-section">
                   <span class="product-thumb-group">${group}</span>
                   ${images.map(image => `
-                    <button class="${image.index === 0 ? 'active' : ''}" data-gallery-src="${image.src}" data-gallery-alt="${image.alt}" data-gallery-label="${image.label}" aria-label="View ${image.label}">
+                    <button class="${image.index === 0 ? 'active' : ''}" data-gallery-src="${image.src}" data-gallery-alt="${image.alt}" data-gallery-label="${image.label}" data-gallery-rotate="${image.rotate ? 'true' : 'false'}" aria-label="View ${image.label}">
                       <span class="product-thumb-index">${image.index + 1}</span>
-                      <img src="${image.src}" alt="${image.alt}">
+                      <img class="${image.rotate ? 'is-rotated' : ''}" src="${image.src}" alt="${image.alt}">
                       <span class="product-thumb-name">${image.label}</span>
                     </button>
                   `).join('')}
@@ -515,12 +551,14 @@ function initProductDetailPage() {
       const caption = page.querySelector('[data-gallery-caption]');
       mainImage.src = button.dataset.gallerySrc;
       mainImage.alt = button.dataset.galleryAlt;
+      mainImage.classList.toggle('is-rotated', button.dataset.galleryRotate === 'true');
       if (caption) caption.textContent = button.dataset.galleryLabel;
     });
   });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  injectFavicons();
   injectHeader();
   injectFooter();
 

@@ -4,6 +4,9 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Huagui Elastic | Printed Waistbands</title>
+  <link rel="icon" type="image/png" href="assets/huagui-logo.png" />
+  <link rel="apple-touch-icon" href="assets/huagui-logo.png" />
+  <meta name="theme-color" content="#880830" />
   <style>
     :root{
       --accent:#f15a24;
@@ -45,12 +48,12 @@
     .catalog-pill.active{border-color:var(--accent);background:var(--accent);color:#fff}
     .catalog-pill.tag.active{border-color:var(--brand-wine);background:var(--brand-wine)}
 
-    .grid{display:grid;grid-template-columns:330px minmax(420px,1fr) 420px;gap:28px;align-items:start}
+    .grid{display:grid;grid-template-columns:360px minmax(520px,1fr) 440px;gap:32px;align-items:start}
 
-    .intro h1{font-size:40px;line-height:1.03;margin:28px 0 16px;letter-spacing:-1px;text-transform:uppercase}
-    .dash{width:42px;height:3px;background:var(--accent);margin:0 0 24px}
-    .intro p{font-size:16px;line-height:1.65;margin:0 0 24px;color:#222}
-    .quick-icons{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:24px 0 34px;text-align:center}
+    .intro h1{font-size:48px;line-height:1.02;margin:34px 0 18px;letter-spacing:-1px;text-transform:uppercase}
+    .dash{width:48px;height:3px;background:var(--accent);margin:0 0 28px}
+    .intro p{font-size:17px;line-height:1.68;margin:0 0 28px;color:#222}
+    .quick-icons{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:28px 0 38px;text-align:center}
     .icon-circle{width:50px;height:50px;border:2px solid #111;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 9px;background:#fff}
     .icon-circle svg{width:25px;height:25px;stroke:#111;fill:none;stroke-width:1.9}
     .quick-icons span{font-size:11px;font-weight:700;display:block;line-height:1.25}
@@ -59,19 +62,19 @@
     .gallery-group + .gallery-group{margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}
     .gallery-group-title{margin:0 0 10px;color:#555;font-size:11px;font-weight:900;letter-spacing:.9px;text-transform:uppercase}
     .thumbs{display:grid;gap:11px}
-    .thumb{height:106px;background:#fff;border:1px solid var(--line);border-radius:6px;display:grid;grid-template-columns:84px 1fr;gap:12px;align-items:center;padding:8px 12px;cursor:pointer;transition:.16s;border-color:#e3e3e3}
+    .thumb{height:116px;background:#fff;border:1px solid var(--line);border-radius:6px;display:grid;grid-template-columns:96px 1fr;gap:12px;align-items:center;padding:10px 12px;cursor:pointer;transition:.16s;border-color:#e3e3e3}
     .thumb:hover,.thumb.active{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
     .num{width:24px;height:24px;border-radius:5px;background:#aaa;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:13px;margin-bottom:8px}
     .thumb.active .num{background:var(--accent)}
     .thumb-label{font-size:13px;font-weight:700;color:#222}
-    .thumb-img{--thumb-media-height:88px;height:var(--thumb-media-height);width:100%;border-radius:4px;background:#fafafa;overflow:hidden;display:flex;align-items:center;justify-content:center}
+    .thumb-img{--thumb-media-height:96px;height:var(--thumb-media-height);width:100%;border-radius:4px;background:#fafafa;overflow:hidden;display:flex;align-items:center;justify-content:center}
     .thumb-img img{width:100%;height:100%;object-fit:contain}
-    .thumb-img img.is-rotated{width:var(--thumb-media-height);height:auto;max-width:none;transform:rotate(-90deg)}
+    .thumb-img img.is-rotated{width:min(var(--thumb-media-height),calc(100% * 1.333));height:auto;max-width:none;transform:rotate(-90deg)}
 
-    .main-card{background:#fafafa;border:1px solid #efefef;border-radius:2px;min-height:720px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px;position:relative}
-    .main-img-wrap{--main-media-height:630px;width:100%;height:var(--main-media-height);display:flex;align-items:center;justify-content:center;background:#fff;border:1px solid #f1f1f1;overflow:hidden}
+    .main-card{background:#fafafa;border:1px solid #efefef;border-radius:2px;min-height:820px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:34px;position:relative}
+    .main-img-wrap{--main-media-height:720px;width:100%;height:var(--main-media-height);display:flex;align-items:center;justify-content:center;background:#fff;border:1px solid #f1f1f1;overflow:hidden}
     #mainImage{width:100%;height:100%;object-fit:contain;object-position:center;background:#fff}
-    #mainImage.is-rotated{width:min(100%,var(--main-media-height));height:auto;max-width:none;transform:rotate(-90deg)}
+    #mainImage.is-rotated{width:min(var(--main-media-height),calc(100% * 1.333));height:auto;max-width:none;transform:rotate(-90deg)}
     .image-caption{height:38px;display:flex;align-items:center;gap:10px;color:#555;font-size:13px;font-weight:700;margin-top:18px}
     .image-caption svg{width:18px;height:18px;stroke:#111;fill:none;stroke-width:1.7}
 
@@ -94,8 +97,12 @@
 
     .notice{margin-top:24px;color:#777;font-size:12px;line-height:1.5}
 
+    @media (max-width:1440px){
+      .grid{grid-template-columns:330px minmax(420px,1fr) 390px;gap:24px}
+      .side{padding:24px 24px 28px}
+    }
     @media (max-width:1200px){
-      .grid{grid-template-columns:310px 1fr;gap:24px}
+      .grid{grid-template-columns:330px 1fr;gap:24px}
       .side{grid-column:1 / -1;display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px}
       .block{border-bottom:0;border-right:1px solid var(--line);padding-bottom:0;margin-bottom:0;padding-right:24px}
       .block:last-child{border-right:0;padding-right:0}
@@ -104,7 +111,7 @@
       .nav{height:auto;min-height:74px;flex-wrap:wrap;gap:14px;padding:14px 20px}
       .brand,.actions{min-width:auto}.menu{order:3;width:100%;justify-content:flex-start;overflow:auto;gap:24px}.menu a{height:34px}.quote-top{display:none}
       .catalog-row{grid-template-columns:1fr;gap:8px}
-      .page{padding:18px 18px 40px}.grid{grid-template-columns:1fr}.intro h1{font-size:34px}.main-card{min-height:auto}.main-img-wrap{--main-media-height:520px}
+      .page{padding:18px 18px 40px}.grid{grid-template-columns:1fr}.intro h1{font-size:38px}.main-card{min-height:auto}.main-img-wrap{--main-media-height:560px}
       .side{display:block}.block{border-right:0;border-bottom:1px solid var(--line);padding-bottom:24px;margin-bottom:24px;padding-right:0}.block:last-child{border-bottom:0;margin-bottom:0}
     }
     @media (max-width:560px){
@@ -181,37 +188,28 @@
         <div class="gallery-group" aria-label="Product images">
           <p class="gallery-group-title">Product Images</p>
           <div class="thumbs">
-            <button class="thumb active" data-src="assets/lady/product1.jpg" data-label="Front & Back" data-caption="Product Images: Front & Back" type="button">
+            <button class="thumb active" data-src="assets/front-back.jpeg" data-label="Front & Back" data-caption="Product Images: Front & Back" data-rotate="true" type="button">
               <div><div class="num">1</div><div class="thumb-label">Front & Back</div></div>
-              <div class="thumb-img"><img src="assets/lady/product1.jpg" alt="Front and back view of printed waistband"></div>
+              <div class="thumb-img"><img class="is-rotated" src="assets/front-back.jpeg" alt="Front and back view of printed waistband"></div>
             </button>
-            <button class="thumb" data-src="assets/lady/product2.jpg" data-label="Front" data-caption="Product Images: Front" type="button">
+            <button class="thumb" data-src="assets/front.jpeg" data-label="Front" data-caption="Product Images: Front" data-rotate="true" type="button">
               <div><div class="num">2</div><div class="thumb-label">Front</div></div>
-              <div class="thumb-img"><img src="assets/lady/product2.jpg" alt="Front view of printed waistband"></div>
+              <div class="thumb-img"><img class="is-rotated" src="assets/front.jpeg" alt="Front view of printed waistband"></div>
             </button>
-            <button class="thumb" data-src="assets/lady/prodyct3.jpg" data-label="Back" data-caption="Product Images: Back" type="button">
+            <button class="thumb" data-src="assets/back.jpeg" data-label="Back" data-caption="Product Images: Back" data-rotate="true" type="button">
               <div><div class="num">3</div><div class="thumb-label">Back</div></div>
-              <div class="thumb-img"><img src="assets/lady/prodyct3.jpg" alt="Back view of printed waistband"></div>
+              <div class="thumb-img"><img class="is-rotated" src="assets/back.jpeg" alt="Back view of printed waistband"></div>
             </button>
-            <button class="thumb" data-src="assets/lady/product4.jpg" data-label="Color Options" data-caption="Product Images: Color Options" type="button">
-              <div><div class="num">4</div><div class="thumb-label">Color Options</div></div>
-              <div class="thumb-img"><img src="assets/lady/product4.jpg" alt="Color options of printed waistband"></div>
-            </button>
-          </div>
-        </div>
-        <div class="gallery-group" aria-label="Finished product display">
-          <p class="gallery-group-title">Finished Product Display</p>
-          <div class="thumbs">
-            <button class="thumb" data-src="assets/lady/product_final.jpg" data-label="Application" data-caption="Finished Product Display: Application" type="button">
-              <div><div class="num">5</div><div class="thumb-label">Application</div></div>
-              <div class="thumb-img"><img src="assets/lady/product_final.jpg" alt="Application of printed waistband on underwear"></div>
+            <button class="thumb" data-src="assets/application.jpeg" data-label="Application" data-caption="Product Images: Application" type="button">
+              <div><div class="num">4</div><div class="thumb-label">Application</div></div>
+              <div class="thumb-img"><img src="assets/application.jpeg" alt="Application of printed waistband on underwear"></div>
             </button>
           </div>
         </div>
       </aside>
 
       <section class="main-card" aria-label="Main product image">
-        <div class="main-img-wrap"><img id="mainImage" src="assets/lady/product1.jpg" alt="Front and back view of printed waistband"></div>
+        <div class="main-img-wrap"><img id="mainImage" class="is-rotated" src="assets/front-back.jpeg" alt="Front and back view of printed waistband"></div>
         <div class="image-caption"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M16 16l5 5"/><path d="M11 8v6M8 11h6"/></svg><span id="captionText">Hover or click on the left images to view: Product Images: Front & Back</span></div>
       </section>
 
