@@ -1,0 +1,11 @@
+{
+  "name": "huagui-elastic-site",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "check": "node --check api/_cms.js && node --check api/products.js && node --check api/admin/login.js && node --check api/admin/logout.js && node --check api/admin/products.js && node --check api/admin/session.js && node --check api/admin/upload.js && node --check huagui_company_site/assets/js/main.js && node --check huagui_company_site/assets/js/admin.js"
+  },
+  "dependencies": {
+    "@vercel/blob": "^2.5.0"
+  }
+}

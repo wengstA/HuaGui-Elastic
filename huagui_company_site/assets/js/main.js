@@ -219,7 +219,24 @@ function initNavbarScroll() {
 }
 
 // ========== Product Data ==========
-const products = [
+const CATEGORY_LABELS = {
+  mens: "Men's Underwear Elastics",
+  womens: "Women's Underwear Elastics",
+  lingerie: 'Bra & Lingerie Elastics',
+  activewear: 'Activewear Elastics'
+};
+
+const IMAGE_LABEL_PRESETS = [
+  { label: 'Front & Back', group: 'Product Display' },
+  { label: 'Front', group: 'Product Display' },
+  { label: 'Back', group: 'Product Display' },
+  { label: 'Colors', group: 'Product Display' },
+  { label: 'Application', group: 'Application' }
+];
+
+const PRODUCT_PREVIEW_KEY = 'huagui_product_preview';
+
+const DEFAULT_PRODUCTS = [
   {
     slug: 'printed-waistbands',
     name: 'Printed Waistbands',
@@ -364,22 +381,188 @@ const products = [
   }
 ];
 
-const featuredProducts = products.slice(0, 6);
+let products = normalizePublicProducts(DEFAULT_PRODUCTS);
+let featuredProducts = products.slice(0, 6);
+let isPreviewMode = false;
+
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, char => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  }[char]));
+}
+
+function normalizeArray(value) {
+  if (Array.isArray(value)) return value.map(item => String(item || '').trim()).filter(Boolean);
+  if (typeof value === 'string') return value.split(/\r?\n|,/).map(item => item.trim()).filter(Boolean);
+  return [];
+}
+
+function normalizeImageLabelKey(value) {
+  return String(value || '').trim().toLowerCase().replace(/&/g, 'and').replace(/\s+/g, ' ');
+}
+
+function imagePresetForIndex(index) {
+  return IMAGE_LABEL_PRESETS[Math.min(index, IMAGE_LABEL_PRESETS.length - 1)];
+}
+
+function imagePresetForLabel(label, index = 0) {
+  const key = normalizeImageLabelKey(label);
+  const preset = IMAGE_LABEL_PRESETS.find(item => normalizeImageLabelKey(item.label) === key);
+  if (preset) return preset;
+  return imagePresetForIndex(index);
+}
+
+function imageAlt(productName, label) {
+  return `${productName || 'Product'} - ${label}`;
+}
+
+function normalizeGallery(product) {
+  const rawGallery = Array.isArray(product.gallery) ? product.gallery : [];
+  const shouldPrependImage = Boolean(product.image && !rawGallery.some(item => {
+    const src = typeof item === 'string' ? item : String((item && item.src) || '').trim();
+    return src === product.image;
+  }));
+  const gallery = rawGallery.map((item, index) => {
+    const labelIndex = index + (shouldPrependImage ? 1 : 0);
+    const preset = imagePresetForLabel(typeof item === 'string' ? '' : (item && (item.label || item.thumbLabel)), labelIndex);
+    if (typeof item === 'string') {
+      return {
+        group: preset.group,
+        src: item,
+        label: preset.label,
+        alt: imageAlt(product.name, preset.label),
+        rotate: false
+      };
+    }
+    const source = item && typeof item === 'object' ? item : {};
+    return {
+      group: preset.group,
+      src: String(source.src || '').trim(),
+      label: preset.label,
+      alt: imageAlt(product.name, preset.label),
+      rotate: Boolean(source.rotate)
+    };
+  }).filter(item => item.src);
+
+  if (shouldPrependImage) {
+    const preset = imagePresetForIndex(0);
+    gallery.unshift({
+      group: preset.group,
+      src: product.image,
+      label: preset.label,
+      alt: imageAlt(product.name, preset.label),
+      rotate: false
+    });
+  }
+
+  return gallery;
+}
+
+function normalizeProductForSite(product, index = 0, includeDraft = false) {
+  const source = product && typeof product === 'object' ? product : {};
+  const status = source.status || 'published';
+  if (!includeDraft && status !== 'published') return null;
+
+  const category = CATEGORY_LABELS[source.category] ? source.category : 'mens';
+  const name = String(source.name || 'Untitled Product').trim();
+  const normalized = {
+    slug: String(source.slug || `product-${index + 1}`).trim(),
+    name,
+    category,
+    categoryLabel: CATEGORY_LABELS[category],
+    status,
+    sortOrder: Number.isFinite(Number(source.sortOrder)) ? Number(source.sortOrder) : (index + 1) * 10,
+    image: String(source.image || '').trim(),
+    tags: normalizeArray(source.tags),
+    specs: normalizeArray(source.specs),
+    intro: String(source.intro || '').trim(),
+    applications: normalizeArray(source.applications),
+    customOptions: normalizeArray(source.customOptions)
+  };
+  normalized.gallery = normalizeGallery({ ...source, ...normalized });
+  return normalized;
+}
+
+function normalizePublicProducts(items) {
+  return (Array.isArray(items) ? items : [])
+    .map((item, index) => normalizeProductForSite(item, index))
+    .filter(Boolean)
+    .sort((a, b) => {
+      const order = Number(a.sortOrder || 0) - Number(b.sortOrder || 0);
+      if (order !== 0) return order;
+      return a.name.localeCompare(b.name);
+    });
+}
+
+function getPreviewProduct() {
+  const params = new URLSearchParams(window.location.search);
+  if (!params.has('preview')) return null;
+  try {
+    const raw = sessionStorage.getItem(PRODUCT_PREVIEW_KEY);
+    if (!raw) return null;
+    return normalizeProductForSite(JSON.parse(raw), 0, true);
+  } catch (error) {
+    console.warn('Unable to load product preview.', error);
+    return null;
+  }
+}
+
+async function fetchProductsFrom(url) {
+  const response = await fetch(url, { cache: 'no-store' });
+  if (!response.ok) throw new Error(`Unable to load ${url}`);
+  const data = await response.json();
+  return data.products || data;
+}
+
+async function loadSiteProducts() {
+  const previewProduct = getPreviewProduct();
+  if (previewProduct) {
+    isPreviewMode = true;
+    products = [previewProduct];
+    featuredProducts = products;
+    return;
+  }
+
+  const sources = window.location.protocol === 'file:'
+    ? ['data/products.json']
+    : ['/api/products', 'data/products.json'];
+
+  for (const source of sources) {
+    try {
+      products = normalizePublicProducts(await fetchProductsFrom(source));
+      featuredProducts = products.slice(0, 6);
+      return;
+    } catch (error) {
+      console.warn(error.message);
+    }
+  }
+
+  products = normalizePublicProducts(DEFAULT_PRODUCTS);
+  featuredProducts = products.slice(0, 6);
+}
 
 function renderProductCards(containerId, items) {
   const container = document.getElementById(containerId);
   if (!container) return;
+  if (!items.length) {
+    container.innerHTML = '<p class="empty-state">No published products are available yet.</p>';
+    return;
+  }
   container.innerHTML = items.map(p => `
     <article class="product-card">
-      <a class="product-card-img" href="product-detail.html?slug=${p.slug}" aria-label="${p.name}">
-        <img src="${p.image}" alt="${p.name}" loading="lazy">
+      <a class="product-card-img" href="product-detail.html?slug=${encodeURIComponent(p.slug)}" aria-label="${escapeHtml(p.name)}">
+        <img src="${escapeHtml(p.image)}" alt="${escapeHtml(p.name)}" loading="lazy">
       </a>
       <div class="product-card-body">
-        <p class="material">${p.categoryLabel}</p>
-        <h3><a href="product-detail.html?slug=${p.slug}">${p.name}</a></h3>
-        <div class="tag-row">${p.tags.map(tag => `<span>${formatTag(tag)}</span>`).join('')}</div>
-        <div class="specs">${p.specs.map(s => `<span>${s}</span>`).join('')}</div>
-        <a href="product-detail.html?slug=${p.slug}" class="btn-inquiry">View Details</a>
+        <p class="material">${escapeHtml(p.categoryLabel)}</p>
+        <h3><a href="product-detail.html?slug=${encodeURIComponent(p.slug)}">${escapeHtml(p.name)}</a></h3>
+        <div class="tag-row">${p.tags.map(tag => `<span>${escapeHtml(formatTag(tag))}</span>`).join('')}</div>
+        <div class="specs">${p.specs.map(s => `<span>${escapeHtml(s)}</span>`).join('')}</div>
+        <a href="product-detail.html?slug=${encodeURIComponent(p.slug)}" class="btn-inquiry">View Details</a>
       </div>
     </article>
   `).join('');
@@ -458,8 +641,27 @@ function initProductDetailPage() {
   if (!page) return;
 
   const params = new URLSearchParams(window.location.search);
-  const slug = params.get('slug') || 'printed-waistbands';
-  const product = products.find(p => p.slug === slug) || products[0];
+  const slug = params.get('slug') || (products[0] && products[0].slug) || 'printed-waistbands';
+  const product = products.find(p => p.slug === slug) || (isPreviewMode ? products[0] : null);
+  if (!product) {
+    document.title = 'Huagui Elastic - Product Not Found';
+    page.innerHTML = `
+      <section class="section">
+        <div class="container">
+          <div class="breadcrumb">
+            <a href="index.html">Home</a><span>/</span><a href="products.html">Products</a>
+          </div>
+          <div class="empty-detail">
+            <p class="section-label">Product Catalog</p>
+            <h1>Product Not Found</h1>
+            <p>This product is not currently published.</p>
+            <a href="products.html" class="btn btn-primary">View Products</a>
+          </div>
+        </div>
+      </section>
+    `;
+    return;
+  }
   const gallery = (product.gallery && product.gallery.length ? product.gallery : [product.image]).map((item, index) => {
     if (typeof item === 'string') {
       return {
@@ -476,7 +678,16 @@ function initProductDetailPage() {
       alt: item.alt || `${product.name} ${item.label || `view ${index + 1}`}`,
       rotate: Boolean(item.rotate)
     };
-  });
+  }).filter(item => item.src);
+  if (!gallery.length) {
+    gallery.push({
+      group: 'Gallery',
+      src: 'assets/images/product-elastic-sample-board.webp',
+      label: 'Preview Image',
+      alt: `${product.name} preview image`,
+      rotate: false
+    });
+  }
   const galleryGroups = gallery.reduce((groups, image, index) => {
     if (!groups.has(image.group)) groups.set(image.group, []);
     groups.get(image.group).push({ ...image, index });
@@ -504,16 +715,17 @@ function initProductDetailPage() {
   page.innerHTML = `
     <section class="product-detail-shell">
       <div class="container">
+        ${isPreviewMode ? '<div class="preview-ribbon"><strong>Preview</strong><span>This product is not published yet.</span></div>' : ''}
         <div class="breadcrumb">
-          <a href="index.html">Home</a><span>/</span><a href="products.html">Products</a><span>/</span><strong>${product.categoryLabel}</strong>
+          <a href="index.html">Home</a><span>/</span><a href="products.html">Products</a><span>/</span><strong>${escapeHtml(product.categoryLabel)}</strong>
         </div>
 
         <div class="product-detail-layout">
           <aside class="detail-sidebar">
-            <p class="section-label">${product.categoryLabel}</p>
-            <h1>${product.name}</h1>
+            <p class="section-label">${escapeHtml(product.categoryLabel)}</p>
+            <h1>${escapeHtml(product.name)}</h1>
             <div class="detail-title-dash"></div>
-            <p class="product-intro">${product.intro}</p>
+            <p class="product-intro">${escapeHtml(product.intro)}</p>
             <div class="detail-highlight-icons" aria-label="Product highlights">
               <div>
                 <span class="detail-highlight-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 4C11 4 6 8 5 16c5 1 11-2 14-12Z"/><path d="M5 16c2-3 5-5 9-7"/></svg></span>
@@ -528,7 +740,7 @@ function initProductDetailPage() {
                 <span>High Elasticity</span>
               </div>
             </div>
-            <div class="tag-row">${product.tags.map(tag => `<span>${formatTag(tag)}</span>`).join('')}</div>
+            <div class="tag-row">${product.tags.map(tag => `<span>${escapeHtml(formatTag(tag))}</span>`).join('')}</div>
 
             <div class="custom-summary">
               <h3>Custom Your Design</h3>
@@ -544,19 +756,19 @@ function initProductDetailPage() {
             <div class="quick-contact">
               <a href="contact.html" class="quick-contact-card">
                 <span class="quick-contact-icon email"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></span>
-                <span class="quick-contact-text"><strong>Email</strong><span>${CONTACT_INFO.email}</span></span>
+                <span class="quick-contact-text"><strong>Email</strong><span>${escapeHtml(CONTACT_INFO.email)}</span></span>
               </a>
               <a href="contact.html" class="quick-contact-card">
                 <span class="quick-contact-icon chat"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></span>
-                <span class="quick-contact-text"><strong>WhatsApp / WeChat</strong><span>${CONTACT_INFO.people.map(person => `${person.name}: ${person.mobileWechat}`).join(' / ')}</span></span>
+                <span class="quick-contact-text"><strong>WhatsApp / WeChat</strong><span>${escapeHtml(CONTACT_INFO.people.map(person => `${person.name}: ${person.mobileWechat}`).join(' / '))}</span></span>
               </a>
             </div>
           </aside>
 
           <section class="detail-main-column" aria-label="Product details">
             <div class="product-gallery-card">
-              <div class="image-note"><strong data-gallery-caption>${gallery[0].label}</strong><span>Click thumbnails to view available product angles.</span></div>
-              <div class="product-main-image"><img class="${gallery[0].rotate ? 'is-rotated' : ''}" src="${gallery[0].src}" alt="${gallery[0].alt}"></div>
+              <div class="image-note"><strong data-gallery-caption>${escapeHtml(gallery[0].label)}</strong><span>Click thumbnails to view available product angles.</span></div>
+              <div class="product-main-image"><img class="${gallery[0].rotate ? 'is-rotated' : ''}" src="${escapeHtml(gallery[0].src)}" alt="${escapeHtml(gallery[0].alt)}"></div>
             </div>
             <div class="product-info-table">
               <div class="product-info-head">
@@ -566,14 +778,14 @@ function initProductDetailPage() {
               <section class="product-detail-block" aria-labelledby="product-features-title">
                 <h3 id="product-features-title">Features</h3>
                 <ul class="product-feature-list">
-                  ${productFeatures.map(feature => `<li><span class="feature-check" aria-hidden="true"></span>${feature}</li>`).join('')}
+                  ${productFeatures.map(feature => `<li><span class="feature-check" aria-hidden="true"></span>${escapeHtml(feature)}</li>`).join('')}
                 </ul>
               </section>
               <section class="product-detail-block product-spec-block" aria-labelledby="product-specifications-title">
                 <h3 id="product-specifications-title">Specifications</h3>
                 <table class="product-spec-table" aria-label="Product specifications">
                   <tbody>
-                    ${specificationRows.map(([label, value]) => `<tr><th scope="row">${label}</th><td>${value}</td></tr>`).join('')}
+                    ${specificationRows.map(([label, value]) => `<tr><th scope="row">${escapeHtml(label)}</th><td>${escapeHtml(value)}</td></tr>`).join('')}
                   </tbody>
                 </table>
               </section>
@@ -585,12 +797,14 @@ function initProductDetailPage() {
             <div class="product-thumbs">
               ${Array.from(galleryGroups.entries()).map(([group, images]) => `
                 <div class="product-thumb-section">
-                  <span class="product-thumb-group">${group}</span>
+                  <span class="product-thumb-group">${escapeHtml(group)}</span>
                   ${images.map(image => `
-                    <button class="${image.index === 0 ? 'active' : ''}" data-gallery-src="${image.src}" data-gallery-alt="${image.alt}" data-gallery-label="${image.label}" data-gallery-rotate="${image.rotate ? 'true' : 'false'}" aria-label="View ${image.label}">
+                    <button class="${image.index === 0 ? 'active' : ''}" data-gallery-src="${escapeHtml(image.src)}" data-gallery-alt="${escapeHtml(image.alt)}" data-gallery-label="${escapeHtml(image.label)}" data-gallery-rotate="${image.rotate ? 'true' : 'false'}" aria-label="View ${escapeHtml(image.label)}">
                       <span class="product-thumb-index">${image.index + 1}</span>
-                      <img class="${image.rotate ? 'is-rotated' : ''}" src="${image.src}" alt="${image.alt}">
-                      <span class="product-thumb-name">${image.label}</span>
+                      <span class="product-thumb-media">
+                        <img class="${image.rotate ? 'is-rotated' : ''}" src="${escapeHtml(image.src)}" alt="${escapeHtml(image.alt)}">
+                      </span>
+                      <span class="product-thumb-name">${escapeHtml(image.label)}</span>
                     </button>
                   `).join('')}
                 </div>
@@ -601,10 +815,10 @@ function initProductDetailPage() {
       </div>
     </section>
 
-    <section class="cta-banner" style="background-image: url('${product.image}');">
+    <section class="cta-banner" style="background-image: url('${escapeHtml(product.image)}');">
       <div class="hero-overlay"></div>
       <div class="container cta-banner-content">
-        <h2>Need ${product.name} With Your Brand Details?</h2>
+        <h2>Need ${escapeHtml(product.name)} With Your Brand Details?</h2>
         <p>Send width, color, logo artwork, target quantity, and garment application for a faster quotation.</p>
         <a href="contact.html" class="btn btn-white">Start Inquiry</a>
       </div>
@@ -625,10 +839,11 @@ function initProductDetailPage() {
   });
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   injectFavicons();
   injectHeader();
   injectFooter();
+  await loadSiteProducts();
 
   setTimeout(() => {
     initSlider();

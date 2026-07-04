@@ -1,0 +1,522 @@
+{
+  "version": 1,
+  "updatedAt": "2026-07-04T04:10:02.666Z",
+  "products": [
+    {
+      "slug": "printed-waistbands",
+      "name": "Printed Waistbands",
+      "category": "mens",
+      "categoryLabel": "Men's Underwear Elastics",
+      "status": "published",
+      "sortOrder": 10,
+      "image": "assets/images/printed-waistband-front-back.webp",
+      "gallery": [
+        {
+          "group": "Product Display",
+          "src": "assets/images/printed-waistband-front-back.webp",
+          "label": "Front",
+          "alt": "Printed Waistbands - Front",
+          "rotate": false
+        },
+        {
+          "group": "Product Display",
+          "src": "assets/images/printed-waistband-front.webp",
+          "label": "Front",
+          "alt": "Printed Waistbands - Front",
+          "rotate": false
+        },
+        {
+          "group": "Product Display",
+          "src": "assets/images/printed-waistband-back.webp",
+          "label": "Back",
+          "alt": "Printed Waistbands - Back",
+          "rotate": false
+        },
+        {
+          "group": "Application",
+          "src": "assets/images/printed-waistband-application.webp",
+          "label": "Application",
+          "alt": "Printed Waistbands - Application",
+          "rotate": false
+        }
+      ],
+      "tags": [
+        "printed",
+        "waistband"
+      ],
+      "specs": [
+        "25-45mm width",
+        "Nylon/Polyester/Spandex",
+        "Logo print",
+        "Soft handfeel"
+      ],
+      "intro": "Custom printed elastic waistbands for men's underwear brands, designed for clean logo presentation, soft skin contact, and stable recovery in repeat production.",
+      "applications": [
+        "Men's boxer briefs",
+        "Briefs",
+        "Trunks",
+        "Loungewear waistbands"
+      ],
+      "customOptions": [
+        "Logo artwork and repeat layout",
+        "Pantone or fabric color matching",
+        "Width, thickness, and stretch tension",
+        "Roll length and carton packing"
+      ],
+      "createdAt": "2026-07-03T17:48:20.749Z",
+      "updatedAt": "2026-07-04T04:10:02.666Z"
+    },
+    {
+      "slug": "jacquard-logo-waistbands",
+      "name": "Jacquard Logo Waistbands",
+      "category": "mens",
+      "categoryLabel": "Men's Underwear Elastics",
+      "status": "published",
+      "sortOrder": 20,
+      "image": "assets/images/product-jacquard-waistbands-main.webp",
+      "gallery": [
+        {
+          "group": "Product Display",
+          "src": "assets/images/product-jacquard-waistbands-main.webp",
+          "label": "Front & Back",
+          "alt": "Jacquard Logo Waistbands - Front & Back",
+          "rotate": false
+        },
+        {
+          "group": "Product Display",
+          "src": "assets/images/material-yarn-lines.webp",
+          "label": "Front",
+          "alt": "Jacquard Logo Waistbands - Front",
+          "rotate": false
+        }
+      ],
+      "tags": [
+        "jacquard",
+        "waistband"
+      ],
+      "specs": [
+        "30-50mm width",
+        "Woven logo",
+        "High stretch recovery",
+        "Color matched"
+      ],
+      "intro": "Woven logo waistbands for underwear brands that need durable branding and a premium textile texture.",
+      "applications": [
+        "Men's underwear",
+        "Premium briefs",
+        "Brand logo waistbands"
+      ],
+      "customOptions": [
+        "Jacquard logo design",
+        "Yarn color matching",
+        "Elastic tension control",
+        "Bulk roll packing"
+      ],
+      "createdAt": "2026-07-03T17:48:20.750Z",
+      "updatedAt": "2026-07-04T04:10:02.666Z"
+    },
+    {
+      "slug": "womens-printed-waistbands",
+      "name": "Women's Printed Waistbands",
+      "category": "womens",
+      "categoryLabel": "Women's Underwear Elastics",
+      "status": "published",
+      "sortOrder": 30,
+      "image": "assets/images/product-plain-elastic-main.webp",
+      "gallery": [
+        {
+          "group": "Product Display",
+          "src": "assets/images/product-plain-elastic-main.webp",
+          "label": "Front & Back",
+          "alt": "Women's Printed Waistbands - Front & Back",
+          "rotate": false
+        },
+        {
+          "group": "Product Display",
+          "src": "assets/images/product-elastic-sample-board.webp",
+          "label": "Front",
+          "alt": "Women's Printed Waistbands - Front",
+          "rotate": false
+        }
+      ],
+      "tags": [
+        "printed",
+        "waistband"
+      ],
+      "specs": [
+        "18-38mm width",
+        "Smooth surface",
+        "Custom color",
+        "Skin-friendly finish"
+      ],
+      "intro": "Soft printed waistbands for women's underwear, with flexible color and logo options for branded collections.",
+      "applications": [
+        "Women's briefs",
+        "Seamless underwear",
+        "Loungewear"
+      ],
+      "customOptions": [
+        "Logo print",
+        "Soft surface finish",
+        "Color matching",
+        "Width customization"
+      ],
+      "createdAt": "2026-07-03T17:48:20.750Z",
+      "updatedAt": "2026-07-04T04:10:02.666Z"
+    },
+    {
+      "slug": "plain-underwear-elastic",
+      "name": "Plain Underwear Elastic",
+      "category": "womens",
+      "categoryLabel": "Women's Underwear Elastics",
+      "status": "published",
+      "sortOrder": 40,
+      "image": "assets/images/product-plain-elastic-main.webp",
+      "gallery": [
+        {
+          "group": "Product Display",
+          "src": "assets/images/product-plain-elastic-main.webp",
+          "label": "Front & Back",
+          "alt": "Plain Underwear Elastic - Front & Back",
+          "rotate": false
+        },
+        {
+          "group": "Product Display",
+          "src": "assets/images/material-yarn-lines.webp",
+          "label": "Front",
+          "alt": "Plain Underwear Elastic - Front",
+          "rotate": false
+        }
+      ],
+      "tags": [
+        "plain"
+      ],
+      "specs": [
+        "Multiple widths",
+        "Dyed to match",
+        "Stable tension",
+        "Bulk rolls"
+      ],
+      "intro": "Plain elastic webbing for underwear and apparel factories needing reliable stretch, color consistency, and bulk roll supply.",
+      "applications": [
+        "Underwear trims",
+        "Waistbands",
+        "Garment binding"
+      ],
+      "customOptions": [
+        "Width selection",
+        "Dyed-to-match color",
+        "Material blend",
+        "Roll packing"
+      ],
+      "createdAt": "2026-07-03T17:48:20.750Z",
+      "updatedAt": "2026-07-04T04:10:02.666Z"
+    },
+    {
+      "slug": "fold-over-elastic",
+      "name": "Fold Over Elastic",
+      "category": "lingerie",
+      "categoryLabel": "Bra & Lingerie Elastics",
+      "status": "published",
+      "sortOrder": 50,
+      "image": "assets/images/product-fold-over-elastic-main.webp",
+      "gallery": [
+        {
+          "group": "Product Display",
+          "src": "assets/images/product-fold-over-elastic-main.webp",
+          "label": "Front & Back",
+          "alt": "Fold Over Elastic - Front & Back",
+          "rotate": false
+        },
+        {
+          "group": "Product Display",
+          "src": "assets/images/product-elastic-sample-board.webp",
+          "label": "Front",
+          "alt": "Fold Over Elastic - Front",
+          "rotate": false
+        }
+      ],
+      "tags": [
+        "fold-over",
+        "lingerie"
+      ],
+      "specs": [
+        "10-25mm width",
+        "Soft fold line",
+        "Lingerie trim",
+        "Custom shade"
+      ],
+      "intro": "Fold over elastic for lingerie and underwear edges where a clean folded finish and soft touch are important.",
+      "applications": [
+        "Lingerie edges",
+        "Brief openings",
+        "Soft apparel binding"
+      ],
+      "customOptions": [
+        "Width and fold line",
+        "Color matching",
+        "Matte or glossy finish",
+        "Softness adjustment"
+      ],
+      "createdAt": "2026-07-03T17:48:20.750Z",
+      "updatedAt": "2026-07-04T04:10:02.666Z"
+    },
+    {
+      "slug": "picot-lingerie-elastic",
+      "name": "Picot Lingerie Elastic",
+      "category": "lingerie",
+      "categoryLabel": "Bra & Lingerie Elastics",
+      "status": "published",
+      "sortOrder": 60,
+      "image": "assets/images/product-picot-elastic-main.webp",
+      "gallery": [
+        {
+          "group": "Product Display",
+          "src": "assets/images/product-picot-elastic-main.webp",
+          "label": "Front & Back",
+          "alt": "Picot Lingerie Elastic - Front & Back",
+          "rotate": false
+        },
+        {
+          "group": "Product Display",
+          "src": "assets/images/product-bra-strap-elastic-main.webp",
+          "label": "Front",
+          "alt": "Picot Lingerie Elastic - Front",
+          "rotate": false
+        }
+      ],
+      "tags": [
+        "picot",
+        "lingerie"
+      ],
+      "specs": [
+        "Decorative edge",
+        "Soft stretch",
+        "Bra and briefs",
+        "OEM colors"
+      ],
+      "intro": "Decorative picot elastic for lingerie trims, balancing visual detail with comfortable stretch.",
+      "applications": [
+        "Bra edges",
+        "Lingerie trims",
+        "Brief leg openings"
+      ],
+      "customOptions": [
+        "Picot edge style",
+        "Color matching",
+        "Width customization",
+        "Elastic recovery"
+      ],
+      "createdAt": "2026-07-03T17:48:20.750Z",
+      "updatedAt": "2026-07-04T04:10:02.666Z"
+    },
+    {
+      "slug": "silicone-grip-elastic",
+      "name": "Silicone Grip Elastic",
+      "category": "activewear",
+      "categoryLabel": "Activewear Elastics",
+      "status": "published",
+      "sortOrder": 70,
+      "image": "assets/images/product-tooth-elastic-main.webp",
+      "gallery": [
+        {
+          "group": "Product Display",
+          "src": "assets/images/product-tooth-elastic-main.webp",
+          "label": "Front & Back",
+          "alt": "Silicone Grip Elastic - Front & Back",
+          "rotate": false
+        },
+        {
+          "group": "Product Display",
+          "src": "assets/images/factory-weaving-production.webp",
+          "label": "Front",
+          "alt": "Silicone Grip Elastic - Front",
+          "rotate": false
+        }
+      ],
+      "tags": [
+        "silicone-grip"
+      ],
+      "specs": [
+        "Anti-slip silicone",
+        "Sportswear ready",
+        "Strong recovery",
+        "Custom lines"
+      ],
+      "intro": "Silicone grip elastic for garments that need anti-slip performance and dependable stretch recovery.",
+      "applications": [
+        "Activewear",
+        "Sports bras",
+        "Leg openings",
+        "Performance garments"
+      ],
+      "customOptions": [
+        "Silicone line pattern",
+        "Grip strength",
+        "Width and tension",
+        "Base elastic color"
+      ],
+      "createdAt": "2026-07-03T17:48:20.750Z",
+      "updatedAt": "2026-07-04T04:10:02.666Z"
+    },
+    {
+      "slug": "bra-strap-elastic",
+      "name": "Bra Strap Elastic",
+      "category": "lingerie",
+      "categoryLabel": "Bra & Lingerie Elastics",
+      "status": "published",
+      "sortOrder": 80,
+      "image": "assets/images/product-bra-strap-elastic-main.webp",
+      "gallery": [
+        {
+          "group": "Product Display",
+          "src": "assets/images/product-bra-strap-elastic-main.webp",
+          "label": "Front & Back",
+          "alt": "Bra Strap Elastic - Front & Back",
+          "rotate": false
+        },
+        {
+          "group": "Product Display",
+          "src": "assets/images/product-elastic-sample-board.webp",
+          "label": "Front",
+          "alt": "Bra Strap Elastic - Front",
+          "rotate": false
+        }
+      ],
+      "tags": [
+        "bra-strap"
+      ],
+      "specs": [
+        "8-20mm width",
+        "Adjustable strap use",
+        "Gloss or matte",
+        "Soft touch"
+      ],
+      "intro": "Bra strap elastic with smooth handfeel and stable recovery for lingerie and intimate apparel.",
+      "applications": [
+        "Bra straps",
+        "Camisoles",
+        "Lingerie shoulder straps"
+      ],
+      "customOptions": [
+        "Width selection",
+        "Gloss or matte surface",
+        "Color matching",
+        "Softness and stretch"
+      ],
+      "createdAt": "2026-07-03T17:48:20.750Z",
+      "updatedAt": "2026-07-04T04:10:02.666Z"
+    },
+    {
+      "slug": "activewear-binding-elastic",
+      "name": "Activewear Binding Elastic",
+      "category": "activewear",
+      "categoryLabel": "Activewear Elastics",
+      "status": "published",
+      "sortOrder": 90,
+      "image": "assets/images/product-knitted-elastic-main.webp",
+      "gallery": [
+        {
+          "group": "Product Display",
+          "src": "assets/images/product-knitted-elastic-main.webp",
+          "label": "Front & Back",
+          "alt": "Activewear Binding Elastic - Front & Back",
+          "rotate": false
+        },
+        {
+          "group": "Product Display",
+          "src": "assets/images/product-fold-over-elastic-main.webp",
+          "label": "Front",
+          "alt": "Activewear Binding Elastic - Front",
+          "rotate": false
+        }
+      ],
+      "tags": [
+        "plain",
+        "activewear"
+      ],
+      "specs": [
+        "Durable stretch",
+        "Sweat resistant",
+        "Color matching",
+        "Roll packing"
+      ],
+      "intro": "Binding elastic for activewear and sports garments needing durability, color matching, and production-ready roll supply.",
+      "applications": [
+        "Activewear binding",
+        "Sportswear trims",
+        "Performance apparel"
+      ],
+      "customOptions": [
+        "Durable construction",
+        "Color matching",
+        "Width and tension",
+        "Bulk packing"
+      ],
+      "createdAt": "2026-07-03T17:48:20.750Z",
+      "updatedAt": "2026-07-04T04:10:02.666Z"
+    },
+    {
+      "slug": "new-product",
+      "name": "New Product",
+      "category": "mens",
+      "categoryLabel": "Men's Underwear Elastics",
+      "status": "published",
+      "sortOrder": 100,
+      "image": "/uploads/products/new-product/1783136523794-front-rotated.webp",
+      "gallery": [
+        {
+          "group": "Product Display",
+          "src": "/uploads/products/new-product/1783136523794-front-rotated.webp",
+          "label": "Front",
+          "alt": "New Product - Front",
+          "rotate": false
+        },
+        {
+          "group": "Product Display",
+          "src": "/uploads/products/new-product/1783136544531-back-rotated.webp",
+          "label": "Colors",
+          "alt": "New Product - Colors",
+          "rotate": false
+        },
+        {
+          "group": "Product Display",
+          "src": "/uploads/products/new-product/1783136552908-colors-rotated.webp",
+          "label": "Front",
+          "alt": "New Product - Front",
+          "rotate": false
+        },
+        {
+          "group": "Product Display",
+          "src": "/uploads/products/new-product/1783136549779-application-rotated.webp",
+          "label": "Back",
+          "alt": "New Product - Back",
+          "rotate": false
+        },
+        {
+          "group": "Product Display",
+          "src": "/uploads/products/new-product/1783136557042-application-rotated.webp",
+          "label": "Colors",
+          "alt": "New Product - Colors",
+          "rotate": false
+        },
+        {
+          "group": "Product Display",
+          "src": "/uploads/products/new-product/1783138184621-front-and-back.webp",
+          "label": "Front & Back",
+          "alt": "New Product - Front & Back",
+          "rotate": false
+        }
+      ],
+      "tags": [
+        "printed"
+      ],
+      "specs": [],
+      "intro": "",
+      "applications": [],
+      "customOptions": [],
+      "createdAt": "2026-07-04T03:41:03.203Z",
+      "updatedAt": "2026-07-04T04:10:02.666Z"
+    }
+  ]
+}

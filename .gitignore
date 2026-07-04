@@ -1,1 +1,5 @@
+node_modules/
+.env.local
+.vercel/
+huagui_company_site/uploads/
 .DS_Store

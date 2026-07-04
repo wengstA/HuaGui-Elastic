@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Huagui Elastic - Admin</title>
+  <script>
+    if (window.location.protocol === 'file:') {
+      window.location.replace('http://127.0.0.1:3000/admin');
+    }
+  </script>
+  <link rel="icon" type="image/png" href="assets/images/huagui-logo.png">
+  <link rel="apple-touch-icon" href="assets/images/huagui-logo.png">
+  <meta name="theme-color" content="#880830">
+  <link rel="stylesheet" href="assets/css/style.css?v=admin-cms-20260704-rotate-bake2">
+</head>
+<body class="admin-body">
+  <main class="admin-shell" id="adminApp">
+    <section class="admin-login" data-login>
+      <div class="admin-login-panel">
+        <div class="admin-brand">
+          <img src="assets/images/huagui-logo.png" alt="Huagui Elastic logo">
+          <span>HUAGUI ELASTIC</span>
+        </div>
+        <form class="admin-login-form" data-login-form>
+          <label for="adminPassword">Password</label>
+          <input id="adminPassword" name="password" type="password" autocomplete="current-password" required>
+          <button class="btn btn-primary" type="submit">Sign In</button>
+          <p class="admin-message" data-login-message></p>
+        </form>
+      </div>
+    </section>
+
+    <section class="admin-workspace" data-workspace hidden>
+      <header class="admin-topbar">
+        <a href="index.html" class="admin-brand" aria-label="Huagui Elastic home">
+          <img src="assets/images/huagui-logo.png" alt="Huagui Elastic logo">
+          <span>HUAGUI ELASTIC</span>
+        </a>
+        <div class="admin-topbar-actions">
+          <span class="admin-session-note" data-session-note>Checking session</span>
+          <a class="admin-link" href="products.html" target="_blank" rel="noreferrer">Open Site</a>
+          <button class="btn btn-outline admin-compact-btn" type="button" data-logout>Logout</button>
+        </div>
+      </header>
+
+      <div class="admin-live-state" data-live-state data-tone="warning">
+        Opening admin workspace...
+      </div>
+
+      <div class="admin-layout">
+        <aside class="admin-list-panel">
+          <div class="admin-panel-head">
+            <div>
+              <p class="section-label">Products</p>
+              <h1>Catalog</h1>
+            </div>
+            <button class="btn btn-primary admin-compact-btn" type="button" data-new-product>New</button>
+          </div>
+          <div class="admin-list-tools">
+            <input type="search" placeholder="Search products" data-search>
+            <select data-status-filter aria-label="Status filter">
+              <option value="all">All</option>
+              <option value="published">Published</option>
+              <option value="draft">Draft</option>
+            </select>
+          </div>
+          <div class="admin-product-list" data-product-list></div>
+        </aside>
+
+        <section class="admin-editor-panel">
+          <div class="admin-editor-head">
+            <div>
+              <p class="section-label" data-editor-status>Draft</p>
+              <h2 data-editor-title>New Product</h2>
+            </div>
+            <div class="admin-editor-actions">
+              <button class="btn btn-outline admin-compact-btn" type="button" data-save-draft>Save Draft</button>
+              <button class="btn btn-primary admin-compact-btn" type="button" data-publish>Publish</button>
+            </div>
+          </div>
+
+          <form class="admin-form" data-product-form>
+            <div class="admin-form-grid">
+              <label>
+                <span>Product Name</span>
+                <input name="name" type="text" autocomplete="off" required>
+              </label>
+              <label>
+                <span>Slug</span>
+                <input name="slug" type="text" autocomplete="off" required>
+              </label>
+              <label>
+                <span>Main Category</span>
+                <select name="category">
+                  <option value="mens">Men's Underwear Elastics</option>
+                  <option value="womens">Women's Underwear Elastics</option>
+                  <option value="lingerie">Bra & Lingerie Elastics</option>
+                  <option value="activewear">Activewear Elastics</option>
+                </select>
+              </label>
+              <label>
+                <span>Sort Order</span>
+                <input name="sortOrder" type="number" step="10" min="0">
+              </label>
+            </div>
+
+            <fieldset class="admin-fieldset">
+              <legend>Tags</legend>
+              <div class="admin-tag-options" data-tags>
+                <label><input type="checkbox" value="printed"> Printed</label>
+                <label><input type="checkbox" value="jacquard"> Jacquard</label>
+                <label><input type="checkbox" value="plain"> Plain</label>
+                <label><input type="checkbox" value="fold-over"> Fold Over</label>
+                <label><input type="checkbox" value="picot"> Picot</label>
+                <label><input type="checkbox" value="silicone-grip"> Silicone Grip</label>
+                <label><input type="checkbox" value="bra-strap"> Bra Strap</label>
+                <label><input type="checkbox" value="waistband"> Waistband</label>
+              </div>
+            </fieldset>
+
+            <label class="admin-full-field">
+              <span>Intro</span>
+              <textarea name="intro" rows="4"></textarea>
+            </label>
+
+            <div class="admin-form-grid">
+              <label>
+                <span>Specifications</span>
+                <textarea name="specs" rows="5"></textarea>
+              </label>
+              <label>
+                <span>Applications</span>
+                <textarea name="applications" rows="5"></textarea>
+              </label>
+            </div>
+
+            <label class="admin-full-field">
+              <span>Custom Options</span>
+              <textarea name="customOptions" rows="4"></textarea>
+            </label>
+
+            <section class="admin-images-section">
+              <div class="admin-section-row">
+                <div>
+                  <p class="section-label">Images</p>
+                  <h3>Product Gallery</h3>
+                </div>
+                <label class="admin-upload-button">
+                  <input type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" multiple data-upload>
+                  Upload Images
+                </label>
+              </div>
+              <div class="admin-upload-status" data-upload-status></div>
+              <div class="admin-gallery-editor" data-gallery-editor></div>
+            </section>
+          </form>
+        </section>
+
+        <aside class="admin-side-panel">
+          <div class="admin-status-box">
+            <p class="section-label">Status</p>
+            <strong data-side-status>Draft</strong>
+            <span data-side-updated>Not saved</span>
+          </div>
+          <div class="admin-preview-card">
+            <div class="admin-preview-image">
+              <img src="assets/images/product-elastic-sample-board.webp" alt="" data-side-image>
+            </div>
+            <h3 data-side-name>New Product</h3>
+            <p data-side-category>Men's Underwear Elastics</p>
+            <div class="tag-row" data-side-tags></div>
+          </div>
+          <div class="admin-danger-zone">
+            <button class="btn btn-outline admin-compact-btn" type="button" data-unpublish>Unpublish</button>
+            <button class="btn admin-delete-btn" type="button" data-delete>Delete</button>
+          </div>
+          <p class="admin-message" data-save-message></p>
+        </aside>
+      </div>
+    </section>
+
+    <section class="admin-debug" data-debug-panel>
+      <div class="admin-debug-head">
+        <strong>Debug</strong>
+        <div>
+          <button type="button" data-debug-check>Run API Check</button>
+          <button type="button" data-debug-copy>Copy Debug</button>
+          <button type="button" data-debug-toggle>Hide</button>
+        </div>
+      </div>
+      <pre data-debug-output>Loading debug info...</pre>
+    </section>
+  </main>
+
+  <script src="assets/js/admin.js?v=admin-cms-20260704-rotate-bake2"></script>
+</body>
+</html>
