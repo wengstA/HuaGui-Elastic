@@ -28,7 +28,7 @@ const IMAGE_LABEL_PRESETS = [
 
 const PLACEHOLDER_IMAGE = 'assets/images/product-elastic-sample-board.webp';
 const LOCAL_ADMIN_URL = 'http://127.0.0.1:3000/admin';
-const ADMIN_SCRIPT_VERSION = 'admin-cms-20260705-publish-sync';
+const ADMIN_SCRIPT_VERSION = 'admin-cms-20260705-draft-sync';
 
 if (window.location.protocol === 'file:') {
   window.location.replace(LOCAL_ADMIN_URL);
@@ -614,6 +614,16 @@ function replaceCurrentProduct(product) {
   sortProducts();
 }
 
+function syncCurrentFormProduct(options = {}) {
+  const product = collectProduct({
+    silent: true,
+    ...options
+  });
+  if (!product) return null;
+  replaceCurrentProduct(product);
+  return product;
+}
+
 function validateForSave(product) {
   const duplicate = state.products.some(item => item.slug === product.slug && item.slug !== state.selectedSlug);
   if (duplicate) throw new Error(`Slug already exists: ${product.slug}`);
@@ -801,7 +811,7 @@ function updateGalleryField(target) {
 }
 
 function setMainImage(index) {
-  const product = currentProduct();
+  const product = syncCurrentFormProduct();
   if (!product || !product.gallery[index]) return;
   product.image = product.gallery[index].src;
   markDirty();
@@ -809,7 +819,7 @@ function setMainImage(index) {
 }
 
 function removeImage(index) {
-  const product = currentProduct();
+  const product = syncCurrentFormProduct();
   if (!product || !product.gallery[index]) return;
   const [removed] = product.gallery.splice(index, 1);
   if (product.image === removed.src) {
@@ -926,7 +936,7 @@ async function processImage(file) {
 
 async function rotateGalleryImage(index) {
   if (state.rotatingImageIndex !== null) return;
-  const product = currentProduct();
+  const product = syncCurrentFormProduct();
   const image = product && product.gallery[index];
   if (!product || !image) return;
   const selectedSlug = state.selectedSlug;
@@ -976,7 +986,7 @@ async function rotateGalleryImage(index) {
 }
 
 async function uploadImages(files) {
-  const product = currentProduct();
+  const product = syncCurrentFormProduct();
   if (!product || !files.length) return;
   els.uploadStatus.textContent = `Preparing ${files.length} image${files.length > 1 ? 's' : ''}...`;
 
