@@ -1,0 +1,5 @@
+node_modules
+huagui_product_page_preview
+.git
+.env.local
+.env.*.local

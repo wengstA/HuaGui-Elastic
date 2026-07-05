@@ -64,14 +64,17 @@ Required Vercel environment variables:
 ```text
 ADMIN_PASSWORD
 ADMIN_SESSION_SECRET
-BLOB_READ_WRITE_TOKEN
 ```
 
 Optional:
 
 ```text
 ADMIN_SESSION_MAX_AGE_SECONDS
+BLOB_STORE_ID
+BLOB_READ_WRITE_TOKEN
 CMS_PRODUCTS_BLOB_PATH
 ```
+
+For Vercel Blob, the preferred production setup is a project-connected Blob store using OIDC, which injects `BLOB_STORE_ID`. A legacy `BLOB_READ_WRITE_TOKEN` also works if it is present.
 
 The admin login uses an HttpOnly session cookie. By default, a successful login stays active for 12 hours, so refreshing `/admin` can open the workspace without asking for the password again. Use `Logout` to clear it immediately.

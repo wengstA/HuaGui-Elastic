@@ -23,8 +23,14 @@ const PRODUCTS_BLOB_PATH = process.env.CMS_PRODUCTS_BLOB_PATH || 'cms/products.j
 const LOCAL_PRODUCTS_PATH = path.join(process.cwd(), 'huagui_company_site', 'data', 'products.json');
 const LOCAL_UPLOAD_ROOT = path.join(process.cwd(), 'huagui_company_site', 'uploads');
 
-function hasBlobToken() {
-  return Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+function hasBlobStorage() {
+  return Boolean(process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID);
+}
+
+function blobClientOptions() {
+  return process.env.BLOB_READ_WRITE_TOKEN
+    ? { token: process.env.BLOB_READ_WRITE_TOKEN }
+    : {};
 }
 
 function isVercelRuntime() {
@@ -214,15 +220,13 @@ async function readLocalProductsDocument() {
 
 async function readBlobProductsDocument() {
   const { get } = await import('@vercel/blob');
-  const blob = await get(PRODUCTS_BLOB_PATH, {
-    token: process.env.BLOB_READ_WRITE_TOKEN
-  });
+  const blob = await get(PRODUCTS_BLOB_PATH, blobClientOptions());
   const raw = await blobToText(blob);
   return JSON.parse(raw);
 }
 
 async function loadProductsDocument() {
-  if (hasBlobToken()) {
+  if (hasBlobStorage()) {
     try {
       return await readBlobProductsDocument();
     } catch (error) {
@@ -242,7 +246,7 @@ async function saveProductsDocument(products) {
   };
   const json = `${JSON.stringify(document, null, 2)}\n`;
 
-  if (hasBlobToken()) {
+  if (hasBlobStorage()) {
     const { put } = await import('@vercel/blob');
     await put(PRODUCTS_BLOB_PATH, json, {
       access: 'public',
@@ -250,13 +254,13 @@ async function saveProductsDocument(products) {
       allowOverwrite: true,
       contentType: 'application/json',
       cacheControlMaxAge: 60,
-      token: process.env.BLOB_READ_WRITE_TOKEN
+      ...blobClientOptions()
     });
     return document;
   }
 
   if (isVercelRuntime()) {
-    const error = new Error('BLOB_READ_WRITE_TOKEN is required to save CMS data on Vercel.');
+    const error = new Error('A connected Vercel Blob store is required to save CMS data on Vercel.');
     error.statusCode = 500;
     throw error;
   }
@@ -391,14 +395,14 @@ async function saveUploadedWebp({ slug, fileName, dataUrl }) {
 
   const pathname = `products/${safeSlug}/${Date.now()}-${safeName}.webp`;
 
-  if (hasBlobToken()) {
+  if (hasBlobStorage()) {
     const { put } = await import('@vercel/blob');
     const blob = await put(pathname, buffer, {
       access: 'public',
       addRandomSuffix: false,
       contentType: 'image/webp',
       cacheControlMaxAge: 31536000,
-      token: process.env.BLOB_READ_WRITE_TOKEN
+      ...blobClientOptions()
     });
     return {
       url: blob.url,
@@ -408,7 +412,7 @@ async function saveUploadedWebp({ slug, fileName, dataUrl }) {
   }
 
   if (isVercelRuntime()) {
-    const error = new Error('BLOB_READ_WRITE_TOKEN is required to upload images on Vercel.');
+    const error = new Error('A connected Vercel Blob store is required to upload images on Vercel.');
     error.statusCode = 500;
     throw error;
   }
