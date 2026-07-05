@@ -3,3 +3,5 @@ node_modules/
 .vercel/
 huagui_company_site/uploads/
 .DS_Store
+.env.local
+.env.*.local
