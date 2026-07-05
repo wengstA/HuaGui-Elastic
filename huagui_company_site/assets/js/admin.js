@@ -28,7 +28,7 @@ const IMAGE_LABEL_PRESETS = [
 
 const PLACEHOLDER_IMAGE = 'assets/images/product-elastic-sample-board.webp';
 const LOCAL_ADMIN_URL = 'http://127.0.0.1:3000/admin';
-const ADMIN_SCRIPT_VERSION = 'admin-cms-20260704-rotate-bake2';
+const ADMIN_SCRIPT_VERSION = 'admin-cms-20260705-publish-sync';
 
 if (window.location.protocol === 'file:') {
   window.location.replace(LOCAL_ADMIN_URL);
@@ -40,7 +40,8 @@ const state = {
   dirty: false,
   search: '',
   statusFilter: 'all',
-  rotatingImageIndex: null
+  rotatingImageIndex: null,
+  toastTimer: null
 };
 
 const els = {};
@@ -194,6 +195,108 @@ async function apiJson(url, options = {}) {
   return data;
 }
 
+function productDetailUrl(product, fresh = false) {
+  const params = new URLSearchParams({
+    slug: product.slug
+  });
+  if (fresh) params.set('cmsFresh', Date.now().toString());
+  return `product-detail.html?${params.toString()}`;
+}
+
+function hideFloatingBanner() {
+  const banner = document.querySelector('[data-admin-toast]');
+  if (!banner) return;
+  banner.classList.remove('is-visible');
+  window.setTimeout(() => {
+    banner.hidden = true;
+  }, 180);
+}
+
+function showFloatingBanner({ title, message, actionHref, actionLabel, tone = 'success', duration = 9000 }) {
+  let banner = document.querySelector('[data-admin-toast]');
+  if (!banner) {
+    banner = document.createElement('div');
+    banner.className = 'admin-toast';
+    banner.setAttribute('data-admin-toast', '');
+    banner.setAttribute('role', 'status');
+    banner.setAttribute('aria-live', 'polite');
+    document.body.appendChild(banner);
+  }
+
+  if (state.toastTimer) {
+    window.clearTimeout(state.toastTimer);
+    state.toastTimer = null;
+  }
+
+  banner.dataset.tone = tone;
+  banner.innerHTML = `
+    <div class="admin-toast-copy">
+      <strong>${escapeHtml(title)}</strong>
+      <span>${escapeHtml(message)}</span>
+    </div>
+    ${actionHref ? `<a class="admin-toast-action" href="${escapeHtml(actionHref)}" target="_blank" rel="noreferrer">${escapeHtml(actionLabel || 'View')}</a>` : ''}
+    <button class="admin-toast-close" type="button" data-admin-toast-close aria-label="Dismiss">&times;</button>
+  `;
+  banner.hidden = false;
+  window.requestAnimationFrame(() => {
+    banner.classList.add('is-visible');
+  });
+
+  const close = banner.querySelector('[data-admin-toast-close]');
+  if (close) close.addEventListener('click', hideFloatingBanner, { once: true });
+  if (duration > 0) {
+    state.toastTimer = window.setTimeout(hideFloatingBanner, duration);
+  }
+}
+
+function gallerySignature(product) {
+  return (product.gallery || [])
+    .map(item => (typeof item === 'string' ? item : item && item.src) || '')
+    .filter(Boolean)
+    .join('|');
+}
+
+function publicProductMatches(savedProduct, publicProduct) {
+  if (!savedProduct || !publicProduct) return false;
+  if (publicProduct.status && publicProduct.status !== 'published') return false;
+  if (publicProduct.slug !== savedProduct.slug) return false;
+  if (publicProduct.name !== savedProduct.name) return false;
+  if (String(publicProduct.image || '') !== String(savedProduct.image || '')) return false;
+  return gallerySignature(publicProduct) === gallerySignature(savedProduct);
+}
+
+async function waitForPublishedProduct(product) {
+  let lastSeen = null;
+  for (let attempt = 0; attempt < 6; attempt += 1) {
+    try {
+      const data = await apiJson(`/api/products?cmsFresh=${Date.now()}`, {
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      });
+      lastSeen = (data.products || []).find(item => item.slug === product.slug) || null;
+      if (publicProductMatches(product, lastSeen)) return lastSeen;
+    } catch (error) {
+      appendDebug('publish public check failed', error.message);
+    }
+    await sleep(300 + attempt * 220);
+  }
+  return lastSeen && lastSeen.slug === product.slug ? lastSeen : null;
+}
+
+function showPublishBanner(product, verified) {
+  showFloatingBanner({
+    title: verified ? 'Product published' : 'Product saved',
+    message: verified
+      ? `${product.name} is live on the public product detail page.`
+      : `${product.name} was saved. If the old image is still visible, refresh the detail page once.`,
+    actionHref: productDetailUrl(product, true),
+    actionLabel: 'View Product Details',
+    tone: verified ? 'success' : 'warning'
+  });
+}
+
 function cacheElements() {
   els.login = $('[data-login]');
   els.workspace = $('[data-workspace]');
@@ -213,6 +316,7 @@ function cacheElements() {
   els.publish = $('[data-publish]');
   els.unpublish = $('[data-unpublish]');
   els.delete = $('[data-delete]');
+  els.duplicateProduct = $('[data-duplicate-product]');
   els.upload = $('[data-upload]');
   els.uploadStatus = $('[data-upload-status]');
   els.galleryEditor = $('[data-gallery-editor]');
@@ -250,20 +354,6 @@ function showWorkspace(source = 'password') {
   updateSessionNote(source === 'saved-session' ? 'Signed in from saved session' : 'Signed in with password');
   updateLiveState('Opening admin workspace...', 'warning');
   appendDomState('after showWorkspace');
-}
-
-function showAdminReady(message) {
-  let banner = document.querySelector('[data-admin-ready]');
-  if (!banner) {
-    banner = document.createElement('div');
-    banner.className = 'admin-ready-banner';
-    banner.setAttribute('data-admin-ready', '');
-    document.body.appendChild(banner);
-  }
-  banner.textContent = message;
-  window.setTimeout(() => {
-    banner.classList.add('is-soft');
-  }, 2000);
 }
 
 function updateLiveState(message, tone = 'neutral') {
@@ -378,7 +468,6 @@ async function loadProducts() {
   });
   updateLiveState(`Admin workspace is ready. ${state.products.length} products loaded.`, 'success');
   appendDomState('after products loaded');
-  showAdminReady(`Admin loaded: ${state.products.length} products`);
   collapseDebug();
 }
 
@@ -462,9 +551,13 @@ function renderGalleryEditor() {
     return;
   }
 
-  els.galleryEditor.innerHTML = product.gallery.map((image, index) => `
+  const mainIndex = product.gallery.findIndex(image => image.src === product.image);
+  els.galleryEditor.innerHTML = product.gallery.map((image, index) => {
+    const isMain = index === mainIndex;
+    return `
     <div class="admin-gallery-row" data-gallery-index="${index}">
-      <div class="admin-gallery-thumb">
+      <div class="admin-gallery-thumb ${isMain ? 'is-main' : ''}">
+        ${isMain ? '<span class="admin-main-badge">Main</span>' : ''}
         <img class="${image.rotate ? 'is-rotated' : ''}" src="${escapeHtml(image.src)}" alt="">
       </div>
       <label class="admin-gallery-label-field">
@@ -475,12 +568,13 @@ function renderGalleryEditor() {
         <small>Alt: ${escapeHtml(imageAlt(product.name, imagePresetForLabel(image.label, index).label))}</small>
       </label>
       <div class="admin-gallery-actions">
-        <button type="button" data-set-main="${index}">Main</button>
+        <button type="button" data-set-main="${index}" ${isMain ? 'disabled' : ''}>${isMain ? 'Main' : 'Set Main'}</button>
         <button type="button" data-rotate-image="${index}" ${state.rotatingImageIndex === index ? 'disabled' : ''}>${state.rotatingImageIndex === index ? 'Rotating...' : 'Rotate 90°'}</button>
         <button type="button" data-remove-image="${index}">Remove</button>
       </div>
     </div>
-  `).join('');
+  `;
+  }).join('');
 }
 
 function collectProduct(options = {}) {
@@ -544,14 +638,21 @@ async function saveProducts(status) {
 
     state.products = (data.products || []).map(normalizeProduct);
     sortProducts();
-    if (!state.products.some(item => item.slug === state.selectedSlug)) {
-      state.selectedSlug = product.slug;
-    }
+    state.selectedSlug = state.products.some(item => item.slug === product.slug)
+      ? product.slug
+      : (state.products[0] ? state.products[0].slug : null);
     state.dirty = false;
+    const savedProduct = currentProduct() || product;
     showSaveMessage(status === 'published' ? 'Published' : 'Saved as draft', 'success');
+    updateLiveState(status === 'published'
+      ? `${savedProduct.name} was saved as published. Checking the public catalog...`
+      : `${savedProduct.name} was saved as a draft.`, 'success');
     renderAll();
+    return savedProduct;
   } catch (error) {
     showSaveMessage(error.message, 'error');
+    updateLiveState(error.message, 'error');
+    return null;
   }
 }
 
@@ -577,6 +678,50 @@ function createDraftProduct() {
   showSaveMessage('New draft created', 'warning');
 }
 
+function cloneGalleryItems(gallery) {
+  return (gallery || []).map(item => (typeof item === 'string' ? item : {
+    ...item
+  }));
+}
+
+function uniqueProductName(baseName) {
+  let name = baseName;
+  let index = 2;
+  while (state.products.some(product => product.name === name)) {
+    name = `${baseName} ${index}`;
+    index += 1;
+  }
+  return name;
+}
+
+function duplicateCurrentProduct() {
+  const source = collectProduct({ silent: true, status: 'draft' }) || currentProduct();
+  if (!source) return;
+
+  const nextOrder = state.products.reduce((max, product) => Math.max(max, Number(product.sortOrder || 0)), 0) + 10;
+  const copyName = uniqueProductName(`${source.name || 'Product'} Copy`);
+  const now = new Date().toISOString();
+  const product = normalizeProduct({
+    ...source,
+    slug: uniqueSlug(`${source.slug || source.name || 'product'}-copy`),
+    name: copyName,
+    status: 'draft',
+    sortOrder: nextOrder,
+    gallery: cloneGalleryItems(source.gallery),
+    image: source.image,
+    createdAt: now,
+    updatedAt: ''
+  }, state.products.length);
+
+  state.products.push(product);
+  state.selectedSlug = product.slug;
+  state.dirty = true;
+  sortProducts();
+  renderAll();
+  showSaveMessage('Template copy created. Save Draft or Publish to keep it.', 'warning');
+  updateLiveState(`${product.name} was created from the selected product template.`, 'warning');
+}
+
 function selectProduct(slug) {
   if (slug === state.selectedSlug) return;
   if (state.dirty && !confirm('Discard unsaved changes?')) return;
@@ -587,13 +732,20 @@ function selectProduct(slug) {
 }
 
 async function publishProduct() {
-  try {
-    const product = collectProduct({ status: 'published' });
-    validateForSave(product);
-    await saveProducts('published');
-  } catch (error) {
-    showSaveMessage(error.message, 'error');
+  const savedProduct = await saveProducts('published');
+  if (!savedProduct) return;
+
+  const publicProduct = await waitForPublishedProduct(savedProduct);
+  if (publicProduct && publicProductMatches(savedProduct, publicProduct)) {
+    showSaveMessage('Published and live on site', 'success');
+    updateLiveState(`${savedProduct.name} is live on the public site.`, 'success');
+    showPublishBanner(savedProduct, true);
+    return;
   }
+
+  showSaveMessage('Published. Public page may need one refresh.', 'warning');
+  updateLiveState(`${savedProduct.name} was published, but the public API check still saw older data.`, 'warning');
+  showPublishBanner(savedProduct, false);
 }
 
 async function unpublishProduct() {
@@ -916,6 +1068,9 @@ function bindEvents() {
   });
 
   els.newProduct.addEventListener('click', createDraftProduct);
+  if (els.duplicateProduct) {
+    els.duplicateProduct.addEventListener('click', duplicateCurrentProduct);
+  }
   els.saveDraft.addEventListener('click', () => saveProducts('draft'));
   els.publish.addEventListener('click', publishProduct);
   els.unpublish.addEventListener('click', unpublishProduct);

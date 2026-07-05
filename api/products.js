@@ -12,7 +12,9 @@ module.exports = async function productsHandler(req, res) {
       ok: true,
       products
     }, {
-      'Cache-Control': 'public, max-age=60, s-maxage=60'
+      'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
+      'Pragma': 'no-cache',
+      'Expires': '0'
     });
   } catch (error) {
     return sendError(res, error.statusCode || 500, error.message || 'Unable to load products');

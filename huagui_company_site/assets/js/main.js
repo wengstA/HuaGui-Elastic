@@ -511,8 +511,20 @@ function getPreviewProduct() {
   }
 }
 
+function freshDataUrl(url) {
+  if (window.location.protocol === 'file:') return url;
+  const separator = url.includes('?') ? '&' : '?';
+  return `${url}${separator}cmsFresh=${Date.now()}`;
+}
+
 async function fetchProductsFrom(url) {
-  const response = await fetch(url, { cache: 'no-store' });
+  const response = await fetch(freshDataUrl(url), {
+    cache: 'no-store',
+    headers: {
+      'Cache-Control': 'no-cache',
+      'Pragma': 'no-cache'
+    }
+  });
   if (!response.ok) throw new Error(`Unable to load ${url}`);
   const data = await response.json();
   return data.products || data;

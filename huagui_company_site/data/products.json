@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-07-04T04:10:02.666Z",
+  "updatedAt": "2026-07-05T04:47:31.580Z",
   "products": [
     {
       "slug": "printed-waistbands",
@@ -64,7 +64,7 @@
         "Roll length and carton packing"
       ],
       "createdAt": "2026-07-03T17:48:20.749Z",
-      "updatedAt": "2026-07-04T04:10:02.666Z"
+      "updatedAt": "2026-07-05T04:47:31.580Z"
     },
     {
       "slug": "jacquard-logo-waistbands",
@@ -113,7 +113,7 @@
         "Bulk roll packing"
       ],
       "createdAt": "2026-07-03T17:48:20.750Z",
-      "updatedAt": "2026-07-04T04:10:02.666Z"
+      "updatedAt": "2026-07-05T04:47:31.580Z"
     },
     {
       "slug": "womens-printed-waistbands",
@@ -162,7 +162,7 @@
         "Width customization"
       ],
       "createdAt": "2026-07-03T17:48:20.750Z",
-      "updatedAt": "2026-07-04T04:10:02.666Z"
+      "updatedAt": "2026-07-05T04:47:31.580Z"
     },
     {
       "slug": "plain-underwear-elastic",
@@ -210,7 +210,7 @@
         "Roll packing"
       ],
       "createdAt": "2026-07-03T17:48:20.750Z",
-      "updatedAt": "2026-07-04T04:10:02.666Z"
+      "updatedAt": "2026-07-05T04:47:31.580Z"
     },
     {
       "slug": "fold-over-elastic",
@@ -259,7 +259,7 @@
         "Softness adjustment"
       ],
       "createdAt": "2026-07-03T17:48:20.750Z",
-      "updatedAt": "2026-07-04T04:10:02.666Z"
+      "updatedAt": "2026-07-05T04:47:31.580Z"
     },
     {
       "slug": "picot-lingerie-elastic",
@@ -308,7 +308,7 @@
         "Elastic recovery"
       ],
       "createdAt": "2026-07-03T17:48:20.750Z",
-      "updatedAt": "2026-07-04T04:10:02.666Z"
+      "updatedAt": "2026-07-05T04:47:31.580Z"
     },
     {
       "slug": "silicone-grip-elastic",
@@ -357,7 +357,7 @@
         "Base elastic color"
       ],
       "createdAt": "2026-07-03T17:48:20.750Z",
-      "updatedAt": "2026-07-04T04:10:02.666Z"
+      "updatedAt": "2026-07-05T04:47:31.580Z"
     },
     {
       "slug": "bra-strap-elastic",
@@ -405,7 +405,7 @@
         "Softness and stretch"
       ],
       "createdAt": "2026-07-03T17:48:20.750Z",
-      "updatedAt": "2026-07-04T04:10:02.666Z"
+      "updatedAt": "2026-07-05T04:47:31.580Z"
     },
     {
       "slug": "activewear-binding-elastic",
@@ -429,11 +429,24 @@
           "label": "Front",
           "alt": "Activewear Binding Elastic - Front",
           "rotate": false
+        },
+        {
+          "group": "Product Display",
+          "src": "/uploads/products/activewear-binding-elastic/1783226840693-application.webp",
+          "label": "Back",
+          "alt": "Activewear Binding Elastic - Back",
+          "rotate": false
+        },
+        {
+          "group": "Product Display",
+          "src": "/uploads/products/activewear-binding-elastic/1783226841328-application2.webp",
+          "label": "Colors",
+          "alt": "Activewear Binding Elastic - Colors",
+          "rotate": false
         }
       ],
       "tags": [
-        "plain",
-        "activewear"
+        "plain"
       ],
       "specs": [
         "Durable stretch",
@@ -454,7 +467,7 @@
         "Bulk packing"
       ],
       "createdAt": "2026-07-03T17:48:20.750Z",
-      "updatedAt": "2026-07-04T04:10:02.666Z"
+      "updatedAt": "2026-07-05T04:47:31.580Z"
     },
     {
       "slug": "new-product",
@@ -516,7 +529,7 @@
       "applications": [],
       "customOptions": [],
       "createdAt": "2026-07-04T03:41:03.203Z",
-      "updatedAt": "2026-07-04T04:10:02.666Z"
+      "updatedAt": "2026-07-05T04:47:31.580Z"
     }
   ]
 }
