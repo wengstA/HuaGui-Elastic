@@ -28,9 +28,10 @@ function hasBlobStorage() {
 }
 
 function blobClientOptions() {
-  return process.env.BLOB_READ_WRITE_TOKEN
-    ? { token: process.env.BLOB_READ_WRITE_TOKEN }
-    : {};
+  return {
+    ...(process.env.BLOB_READ_WRITE_TOKEN ? { token: process.env.BLOB_READ_WRITE_TOKEN } : {}),
+    ...(process.env.BLOB_STORE_ID ? { storeId: process.env.BLOB_STORE_ID } : {})
+  };
 }
 
 function isVercelRuntime() {
@@ -220,7 +221,13 @@ async function readLocalProductsDocument() {
 
 async function readBlobProductsDocument() {
   const { get } = await import('@vercel/blob');
-  const blob = await get(PRODUCTS_BLOB_PATH, blobClientOptions());
+  const blob = await get(PRODUCTS_BLOB_PATH, {
+    access: 'public',
+    ...blobClientOptions()
+  });
+  if (!blob || blob.statusCode !== 200 || !blob.stream) {
+    throw new Error(`Blob products document not found at ${PRODUCTS_BLOB_PATH}.`);
+  }
   const raw = await blobToText(blob);
   return JSON.parse(raw);
 }
@@ -230,9 +237,7 @@ async function loadProductsDocument() {
     try {
       return await readBlobProductsDocument();
     } catch (error) {
-      if (process.env.NODE_ENV !== 'production') {
-        console.warn(`Blob products read failed, using local fallback: ${error.message}`);
-      }
+      console.warn(`Blob products read failed, using local fallback: ${error.message}`);
     }
   }
   return readLocalProductsDocument();
