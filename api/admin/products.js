@@ -14,7 +14,7 @@ function validateProducts(products) {
 
   normalized.forEach(product => {
     if (slugs.has(product.slug)) {
-      const error = new Error(`Duplicate slug: ${product.slug}`);
+      const error = new Error(`This URL name is already used: ${product.slug}`);
       error.statusCode = 400;
       throw error;
     }

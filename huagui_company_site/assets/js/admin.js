@@ -28,7 +28,7 @@ const IMAGE_LABEL_PRESETS = [
 
 const PLACEHOLDER_IMAGE = 'assets/images/product-elastic-sample-board.webp';
 const LOCAL_ADMIN_URL = 'http://127.0.0.1:3000/admin';
-const ADMIN_SCRIPT_VERSION = 'admin-cms-20260707-no-debug';
+const ADMIN_SCRIPT_VERSION = 'admin-cms-20260707-url-name';
 
 if (window.location.protocol === 'file:') {
   window.location.replace(LOCAL_ADMIN_URL);
@@ -595,7 +595,7 @@ function collectProduct(options = {}) {
   });
 
   if (!options.silent && !product.slug) {
-    throw new Error('Slug is required.');
+    throw new Error('URL name is required.');
   }
   return product;
 }
@@ -620,7 +620,7 @@ function syncCurrentFormProduct(options = {}) {
 
 function validateForSave(product) {
   const duplicate = state.products.some(item => item.slug === product.slug && item.slug !== state.selectedSlug);
-  if (duplicate) throw new Error(`Slug already exists: ${product.slug}`);
+  if (duplicate) throw new Error(`This URL name is already used: ${product.slug}`);
   if (product.status === 'published') {
     if (!product.name || product.name === 'Untitled Product') throw new Error('Product name is required before publishing.');
     if (!product.image) throw new Error('Main image is required before publishing.');
