@@ -28,7 +28,7 @@ const IMAGE_LABEL_PRESETS = [
 
 const PLACEHOLDER_IMAGE = 'assets/images/product-elastic-sample-board.webp';
 const LOCAL_ADMIN_URL = 'http://127.0.0.1:3000/admin';
-const ADMIN_SCRIPT_VERSION = 'admin-cms-20260705-draft-sync';
+const ADMIN_SCRIPT_VERSION = 'admin-cms-20260707-no-debug';
 
 if (window.location.protocol === 'file:') {
   window.location.replace(LOCAL_ADMIN_URL);
@@ -327,11 +327,6 @@ function cacheElements() {
   els.sideCategory = $('[data-side-category]');
   els.sideTags = $('[data-side-tags]');
   els.saveMessage = $('[data-save-message]');
-  els.debugOutput = $('[data-debug-output]');
-  els.debugCopy = $('[data-debug-copy]');
-  els.debugCheck = $('[data-debug-check]');
-  els.debugToggle = $('[data-debug-toggle]');
-  renderDebug();
 }
 
 function field(name) {
@@ -468,7 +463,6 @@ async function loadProducts() {
   });
   updateLiveState(`Admin workspace is ready. ${state.products.length} products loaded.`, 'success');
   appendDomState('after products loaded');
-  collapseDebug();
 }
 
 function renderAll() {
@@ -1024,33 +1018,6 @@ async function uploadImages(files) {
 }
 
 function bindEvents() {
-  if (els.debugCopy) {
-    els.debugCopy.addEventListener('click', async () => {
-      const text = els.debugOutput ? els.debugOutput.textContent : debugLines.join('\n');
-      try {
-        await navigator.clipboard.writeText(text);
-        appendDebug('debug copied');
-      } catch (error) {
-        appendDebug('debug copy failed', error.message);
-      }
-    });
-  }
-
-  if (els.debugCheck) {
-    els.debugCheck.addEventListener('click', () => {
-      runDebugCheck();
-    });
-  }
-
-  if (els.debugToggle) {
-    els.debugToggle.addEventListener('click', () => {
-      const panel = $('[data-debug-panel]');
-      if (!panel) return;
-      panel.classList.toggle('is-collapsed');
-      els.debugToggle.textContent = panel.classList.contains('is-collapsed') ? 'Show' : 'Hide';
-    });
-  }
-
   els.loginForm.addEventListener('submit', async event => {
     event.preventDefault();
     els.loginMessage.textContent = '';
@@ -1130,37 +1097,6 @@ function bindEvents() {
     event.preventDefault();
     event.returnValue = '';
   });
-}
-
-function collapseDebug() {
-  const panel = $('[data-debug-panel]');
-  if (!panel || !els.debugToggle) return;
-  panel.classList.add('is-collapsed');
-  els.debugToggle.textContent = 'Show';
-}
-
-async function runDebugCheck() {
-  appendDebug('manual api check started');
-  try {
-    const session = await apiJson('/api/admin/session');
-    appendDebug('manual session ok', session);
-  } catch (error) {
-    appendDebug('manual session failed', error.message);
-  }
-
-  try {
-    const productsResponse = await fetch('/api/products', {
-      credentials: 'same-origin'
-    });
-    const productsText = await productsResponse.text();
-    appendDebug('manual public products', {
-      status: productsResponse.status,
-      ok: productsResponse.ok,
-      sample: productsText.slice(0, 300)
-    });
-  } catch (error) {
-    appendDebug('manual public products failed', error.message);
-  }
 }
 
 async function boot() {
