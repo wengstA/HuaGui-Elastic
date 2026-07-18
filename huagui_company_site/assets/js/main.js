@@ -836,6 +836,13 @@ function initProductDetailPage() {
   const displaySpecificationRows = hasItemNoRow
     ? specificationRows
     : [{ label: 'Item No.', value: '' }, ...specificationRows];
+  const itemNo = displaySpecificationRows.find(spec => /^item\s*(no\.?|number)$/i.test(spec.label.trim()))?.value || '';
+  const quoteParams = new URLSearchParams({
+    productName: product.name,
+    category: product.category,
+    itemNo
+  });
+  const quoteUrl = `contact.html?${quoteParams.toString()}`;
 
   document.title = `Huagui Elastic - ${product.name}`;
   page.innerHTML = `
@@ -876,7 +883,7 @@ function initProductDetailPage() {
                 <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16M4 6h8M4 18h12"/></svg>Custom Width</span>
                 <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7l8-4 8 4-8 4-8-4z"/><path d="M4 12l8 4 8-4"/><path d="M4 17l8 4 8-4"/></svg>Custom Packing</span>
               </div>
-              <a href="contact.html" class="btn btn-primary">Request Quote</a>
+              <a href="${escapeHtml(quoteUrl)}" class="btn btn-primary">Request Quote</a>
             </div>
 
             <div class="quick-contact">
@@ -946,7 +953,7 @@ function initProductDetailPage() {
       <div class="container cta-banner-content">
         <h2>Need ${escapeHtml(product.name)} With Your Brand Details?</h2>
         <p>Send width, color, logo artwork, target quantity, and garment application for a faster quotation.</p>
-        <a href="contact.html" class="btn btn-white">Start Inquiry</a>
+        <a href="${escapeHtml(quoteUrl)}" class="btn btn-white">Start Inquiry</a>
       </div>
     </section>
   `;
@@ -973,10 +980,83 @@ function initProductDetailPage() {
   });
 }
 
+function applyContactQueryContext(contactForm) {
+  const params = new URLSearchParams(window.location.search);
+  const productName = params.get('productName')?.trim() || '';
+  const itemNo = params.get('itemNo')?.trim() || '';
+  const productCategory = params.get('category')?.trim() || '';
+  const productSelect = contactForm.elements.product;
+  const productNameField = contactForm.elements.productName;
+  const itemNoField = contactForm.elements.itemNo;
+
+  if (productSelect && productCategory && Array.from(productSelect.options).some(option => option.value === productCategory)) {
+    productSelect.value = productCategory;
+  }
+  if (productNameField) productNameField.value = productName;
+  if (itemNoField) itemNoField.value = itemNo;
+
+  const reference = contactForm.querySelector('[data-product-reference]');
+  if (!reference || !productName) return;
+  reference.hidden = false;
+  const name = reference.querySelector('[data-product-reference-name]');
+  const item = reference.querySelector('[data-product-reference-item]');
+  if (name) name.textContent = productName;
+  if (item) item.textContent = itemNo ? `Item No. ${itemNo}` : 'Product detail page inquiry';
+}
+
+function initContactForm() {
+  const contactForm = document.getElementById('contactForm');
+  if (!contactForm) return;
+
+  const submitButton = contactForm.querySelector('[data-contact-submit]');
+  const status = contactForm.querySelector('[data-contact-status]');
+  applyContactQueryContext(contactForm);
+
+  contactForm.addEventListener('submit', async event => {
+    event.preventDefault();
+    const payload = Object.fromEntries(new FormData(contactForm).entries());
+    payload.sourceUrl = window.location.href;
+
+    submitButton.disabled = true;
+    submitButton.textContent = 'Sending...';
+    status.textContent = 'Saving your inquiry securely...';
+    status.dataset.tone = 'neutral';
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || data.ok === false) {
+        throw new Error(data.error || 'Unable to send your inquiry. Please try again.');
+      }
+
+      const inquiryId = data.inquiry && data.inquiry.id;
+      status.textContent = inquiryId
+        ? `Thank you. Your inquiry ${inquiryId} has been saved. Huagui will contact you soon.`
+        : 'Thank you. Your inquiry has been received.';
+      status.dataset.tone = 'success';
+      contactForm.reset();
+      applyContactQueryContext(contactForm);
+    } catch (error) {
+      status.textContent = error.message || 'Unable to send your inquiry. Please try again.';
+      status.dataset.tone = 'error';
+    } finally {
+      submitButton.disabled = false;
+      submitButton.textContent = 'Send Inquiry';
+    }
+  });
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   injectFavicons();
   injectHeader();
   injectFooter();
+  initContactForm();
   await loadSiteProducts();
 
   setTimeout(() => {
@@ -987,25 +1067,5 @@ document.addEventListener('DOMContentLoaded', async () => {
     initProductsPage();
     initProductDetailPage();
     renderGlobalContactInfo();
-
-    const contactForm = document.getElementById('contactForm');
-    if (contactForm) {
-      contactForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const email = document.getElementById('email').value.trim();
-        const name = document.getElementById('name').value.trim();
-        const message = document.getElementById('message').value.trim();
-        if (!name || !email || !message) {
-          alert('Please fill in all required fields: name, email, and message.');
-          return;
-        }
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-          alert('Please enter a valid email address.');
-          return;
-        }
-        alert('Thank you. Huagui Elastic will respond with sample and quotation details soon.');
-        contactForm.reset();
-      });
-    }
   }, 0);
 });

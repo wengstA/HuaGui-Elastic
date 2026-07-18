@@ -41,7 +41,7 @@ const IMAGE_LABEL_PRESETS = [
 
 const PLACEHOLDER_IMAGE = 'assets/images/product-elastic-sample-board.webp';
 const LOCAL_ADMIN_URL = 'http://127.0.0.1:3000/admin';
-const ADMIN_SCRIPT_VERSION = 'admin-cms-20260707-structured-table-editor';
+const ADMIN_SCRIPT_VERSION = 'admin-cms-20260718-inquiries';
 
 if (window.location.protocol === 'file:') {
   window.location.replace(LOCAL_ADMIN_URL);
@@ -53,6 +53,13 @@ const state = {
   dirty: false,
   search: '',
   statusFilter: 'all',
+  activeView: 'products',
+  inquiries: [],
+  selectedInquiryId: null,
+  inquirySearch: '',
+  inquiryStatusFilter: 'all',
+  inquiryStorage: '',
+  inquiryError: '',
   rotatingImageIndex: null,
   toastTimer: null
 };
@@ -415,6 +422,15 @@ function cacheElements() {
   els.sideCategory = $('[data-side-category]');
   els.sideTags = $('[data-side-tags]');
   els.saveMessage = $('[data-save-message]');
+  els.adminViewButtons = $all('[data-admin-view]');
+  els.productsView = $('[data-products-view]');
+  els.inquiriesView = $('[data-inquiries-view]');
+  els.inquiryNewCount = $('[data-inquiry-new-count]');
+  els.inquirySearch = $('[data-inquiry-search]');
+  els.inquiryStatusFilter = $('[data-inquiry-status-filter]');
+  els.inquiryList = $('[data-inquiry-list]');
+  els.inquiryDetail = $('[data-inquiry-detail]');
+  els.refreshInquiries = $('[data-refresh-inquiries]');
 }
 
 function field(name) {
@@ -580,6 +596,246 @@ async function loadProducts() {
   });
   updateLiveState(`Admin workspace is ready. ${state.products.length} products loaded.`, 'success');
   appendDomState('after products loaded');
+}
+
+function normalizeInquiry(value) {
+  const source = value && typeof value === 'object' ? value : {};
+  const status = ['new', 'read', 'resolved'].includes(source.status) ? source.status : 'new';
+  return {
+    id: String(source.id || ''),
+    status,
+    name: String(source.name || ''),
+    email: String(source.email || ''),
+    phone: String(source.phone || ''),
+    product: String(source.product || ''),
+    productName: String(source.productName || ''),
+    itemNo: String(source.itemNo || ''),
+    quantity: String(source.quantity || ''),
+    message: String(source.message || ''),
+    sourceUrl: String(source.sourceUrl || ''),
+    createdAt: source.createdAt || '',
+    updatedAt: source.updatedAt || '',
+    resolvedAt: source.resolvedAt || null
+  };
+}
+
+function currentInquiry() {
+  return state.inquiries.find(inquiry => inquiry.id === state.selectedInquiryId) || null;
+}
+
+function inquiryStatusLabel(status) {
+  return {
+    new: 'New',
+    read: 'Read',
+    resolved: 'Resolved'
+  }[status] || 'New';
+}
+
+function formatInquiryDate(value, options = {}) {
+  if (!value) return 'Unknown time';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value);
+  return date.toLocaleString([], options);
+}
+
+function inquirySubject(inquiry) {
+  return inquiry.productName || CATEGORY_LABELS[inquiry.product] || 'General inquiry';
+}
+
+function renderInquiryCount() {
+  if (!els.inquiryNewCount) return;
+  const count = state.inquiries.filter(inquiry => inquiry.status === 'new').length;
+  els.inquiryNewCount.textContent = String(count);
+  els.inquiryNewCount.classList.toggle('has-new', count > 0);
+}
+
+function renderInquiryList() {
+  if (!els.inquiryList) return;
+  if (state.inquiryError) {
+    els.inquiryList.innerHTML = `<p class="admin-empty">${escapeHtml(state.inquiryError)}</p>`;
+    return;
+  }
+
+  const query = state.inquirySearch.toLowerCase();
+  const inquiries = state.inquiries.filter(inquiry => {
+    const statusMatch = state.inquiryStatusFilter === 'all' || inquiry.status === state.inquiryStatusFilter;
+    const haystack = [
+      inquiry.id,
+      inquiry.name,
+      inquiry.email,
+      inquiry.phone,
+      inquiry.productName,
+      CATEGORY_LABELS[inquiry.product] || '',
+      inquiry.itemNo,
+      inquiry.quantity,
+      inquiry.message
+    ].join(' ').toLowerCase();
+    return statusMatch && (!query || haystack.includes(query));
+  });
+
+  if (!inquiries.length) {
+    els.inquiryList.innerHTML = '<p class="admin-empty">No matching inquiries</p>';
+    return;
+  }
+
+  els.inquiryList.innerHTML = inquiries.map(inquiry => `
+    <button class="admin-inquiry-item ${inquiry.id === state.selectedInquiryId ? 'active' : ''}" type="button" data-select-inquiry="${escapeHtml(inquiry.id)}">
+      <time>${escapeHtml(formatInquiryDate(inquiry.createdAt, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }))}</time>
+      <strong>${escapeHtml(inquiry.name || 'Unnamed customer')}</strong>
+      <small>${escapeHtml(inquirySubject(inquiry))}</small>
+      <em class="admin-status-pill ${escapeHtml(inquiry.status)}">${escapeHtml(inquiryStatusLabel(inquiry.status))}</em>
+    </button>
+  `).join('');
+}
+
+function inquiryStatusActions(inquiry) {
+  const actions = [];
+  if (inquiry.status === 'new') {
+    actions.push('<button class="btn btn-outline admin-compact-btn" type="button" data-inquiry-status="read">Mark Read</button>');
+  }
+  if (inquiry.status !== 'resolved') {
+    actions.push('<button class="btn btn-primary admin-compact-btn" type="button" data-inquiry-status="resolved">Resolve</button>');
+  } else {
+    actions.push('<button class="btn btn-outline admin-compact-btn" type="button" data-inquiry-status="read">Reopen</button>');
+  }
+  return actions.join('');
+}
+
+function renderInquiryDetail() {
+  if (!els.inquiryDetail) return;
+  if (state.inquiryError) {
+    els.inquiryDetail.innerHTML = `
+      <div class="admin-inquiry-empty">
+        <h2>Inquiry storage unavailable</h2>
+        <p>${escapeHtml(state.inquiryError)} Connect a separate Private Blob Store for production inquiries.</p>
+      </div>
+    `;
+    return;
+  }
+
+  const inquiry = currentInquiry();
+  if (!inquiry) {
+    els.inquiryDetail.innerHTML = `
+      <div class="admin-inquiry-empty">
+        <h2>No inquiries yet</h2>
+        <p>New customer requests submitted through the contact page will appear here.</p>
+      </div>
+    `;
+    return;
+  }
+
+  const replySubject = `Re: Inquiry ${inquiry.id} - ${inquirySubject(inquiry)}`;
+  const replyHref = `mailto:${inquiry.email}?subject=${encodeURIComponent(replySubject)}`;
+  const productLabel = CATEGORY_LABELS[inquiry.product] || inquiry.product || 'Not provided';
+  els.inquiryDetail.innerHTML = `
+    <article class="admin-inquiry-detail">
+      <header class="admin-inquiry-detail-head">
+        <div>
+          <p class="section-label">${escapeHtml(inquiry.id)}</p>
+          <h2>${escapeHtml(inquiry.name || 'Unnamed customer')}</h2>
+          <p>Submitted ${escapeHtml(formatInquiryDate(inquiry.createdAt))}</p>
+        </div>
+        <div class="admin-inquiry-actions">
+          <a class="btn btn-outline admin-compact-btn" href="${escapeHtml(replyHref)}">Reply by Email</a>
+          ${inquiryStatusActions(inquiry)}
+        </div>
+      </header>
+      <div class="admin-inquiry-body">
+        <div class="admin-inquiry-meta">
+          <div><span>Status</span><strong>${escapeHtml(inquiryStatusLabel(inquiry.status))}</strong></div>
+          <div><span>Email</span><a href="mailto:${escapeHtml(inquiry.email)}">${escapeHtml(inquiry.email)}</a></div>
+          <div><span>Phone / WhatsApp</span>${inquiry.phone ? `<a href="tel:${escapeHtml(inquiry.phone)}">${escapeHtml(inquiry.phone)}</a>` : '<strong>Not provided</strong>'}</div>
+          <div><span>Product Category</span><strong>${escapeHtml(productLabel)}</strong></div>
+          <div><span>Product Reference</span><strong>${escapeHtml(inquiry.productName || 'Not provided')}</strong></div>
+          <div><span>Item No.</span><strong>${escapeHtml(inquiry.itemNo || 'Not provided')}</strong></div>
+          <div><span>Target Quantity</span><strong>${escapeHtml(inquiry.quantity || 'Not provided')}</strong></div>
+          <div><span>Source Page</span><strong>${escapeHtml(inquiry.sourceUrl || 'Not recorded')}</strong></div>
+        </div>
+        <div class="admin-inquiry-message">
+          <span>Customer Message</span>
+          <p>${escapeHtml(inquiry.message || 'No message')}</p>
+        </div>
+      </div>
+    </article>
+  `;
+}
+
+function renderInquiries() {
+  renderInquiryCount();
+  renderInquiryList();
+  renderInquiryDetail();
+}
+
+async function loadInquiries(options = {}) {
+  if (els.refreshInquiries) els.refreshInquiries.disabled = true;
+  try {
+    const data = await apiJson('/api/admin/inquiries');
+    state.inquiries = (data.inquiries || []).map(normalizeInquiry);
+    state.inquiryStorage = data.storage || '';
+    state.inquiryError = '';
+    if (!state.inquiries.some(inquiry => inquiry.id === state.selectedInquiryId)) {
+      state.selectedInquiryId = state.inquiries[0] ? state.inquiries[0].id : null;
+    }
+    renderInquiries();
+    if (options.announce || state.activeView === 'inquiries') {
+      updateLiveState(`${state.inquiries.length} inquiries loaded from ${state.inquiryStorage || 'storage'}.`, 'success');
+    }
+  } catch (error) {
+    state.inquiries = [];
+    state.selectedInquiryId = null;
+    state.inquiryError = error.message;
+    renderInquiries();
+    if (options.announce || state.activeView === 'inquiries') {
+      updateLiveState(error.message, 'error');
+    }
+  } finally {
+    if (els.refreshInquiries) els.refreshInquiries.disabled = false;
+  }
+}
+
+function selectAdminView(view) {
+  state.activeView = view === 'inquiries' ? 'inquiries' : 'products';
+  els.productsView.hidden = state.activeView !== 'products';
+  els.inquiriesView.hidden = state.activeView !== 'inquiries';
+  els.adminViewButtons.forEach(button => {
+    const active = button.dataset.adminView === state.activeView;
+    button.classList.toggle('active', active);
+    button.setAttribute('aria-selected', active ? 'true' : 'false');
+  });
+
+  if (state.activeView === 'inquiries') {
+    if (state.inquiryError) updateLiveState(state.inquiryError, 'error');
+    else updateLiveState(`${state.inquiries.length} inquiries loaded.`, 'success');
+  } else {
+    updateLiveState(`Admin workspace is ready. ${state.products.length} products loaded.`, 'success');
+  }
+}
+
+function selectInquiry(id) {
+  state.selectedInquiryId = id;
+  renderInquiryList();
+  renderInquiryDetail();
+}
+
+async function updateSelectedInquiryStatus(status) {
+  const inquiry = currentInquiry();
+  if (!inquiry) return;
+  try {
+    const data = await apiJson('/api/admin/inquiries', {
+      method: 'PATCH',
+      body: {
+        id: inquiry.id,
+        status
+      }
+    });
+    const updated = normalizeInquiry(data.inquiry);
+    const index = state.inquiries.findIndex(item => item.id === updated.id);
+    if (index !== -1) state.inquiries[index] = updated;
+    renderInquiries();
+    updateLiveState(`${updated.id} marked ${inquiryStatusLabel(updated.status).toLowerCase()}.`, 'success');
+  } catch (error) {
+    updateLiveState(error.message, 'error');
+  }
 }
 
 function renderAll() {
@@ -1244,6 +1500,7 @@ function bindEvents() {
       });
       showWorkspace('password');
       await loadProducts();
+      await loadInquiries();
     } catch (error) {
       appendDebug('login failed', error.message);
       showLogin(error.message);
@@ -1252,7 +1509,30 @@ function bindEvents() {
 
   els.logout.addEventListener('click', async () => {
     await apiJson('/api/admin/logout', { method: 'POST' }).catch(() => {});
+    state.inquiries = [];
+    state.selectedInquiryId = null;
     showLogin();
+  });
+
+  els.adminViewButtons.forEach(button => {
+    button.addEventListener('click', () => selectAdminView(button.dataset.adminView));
+  });
+  els.refreshInquiries.addEventListener('click', () => loadInquiries({ announce: true }));
+  els.inquirySearch.addEventListener('input', () => {
+    state.inquirySearch = els.inquirySearch.value;
+    renderInquiryList();
+  });
+  els.inquiryStatusFilter.addEventListener('change', () => {
+    state.inquiryStatusFilter = els.inquiryStatusFilter.value;
+    renderInquiryList();
+  });
+  els.inquiryList.addEventListener('click', event => {
+    const button = event.target.closest('[data-select-inquiry]');
+    if (button) selectInquiry(button.dataset.selectInquiry);
+  });
+  els.inquiryDetail.addEventListener('click', event => {
+    const button = event.target.closest('[data-inquiry-status]');
+    if (button) updateSelectedInquiryStatus(button.dataset.inquiryStatus);
   });
 
   els.newProduct.addEventListener('click', createDraftProduct);
@@ -1336,6 +1616,7 @@ async function boot() {
     if (session.authenticated) {
       showWorkspace('saved-session');
       await loadProducts();
+      await loadInquiries();
     } else {
       showLogin();
     }

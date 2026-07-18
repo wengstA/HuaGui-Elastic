@@ -13,7 +13,7 @@
   <link rel="icon" type="image/png" href="assets/images/huagui-logo.png">
   <link rel="apple-touch-icon" href="assets/images/huagui-logo.png">
   <meta name="theme-color" content="#880830">
-  <link rel="stylesheet" href="assets/css/style.css?v=admin-cms-20260707-structured-table-editor">
+  <link rel="stylesheet" href="assets/css/style.css?v=admin-cms-20260718-inquiries">
 </head>
 <body class="admin-body">
   <main class="admin-shell" id="adminApp">
@@ -49,7 +49,14 @@
         Opening admin workspace...
       </div>
 
-      <div class="admin-layout">
+      <nav class="admin-section-tabs" aria-label="Manager sections">
+        <button class="active" type="button" data-admin-view="products" aria-selected="true">Products</button>
+        <button type="button" data-admin-view="inquiries" aria-selected="false">
+          Inquiries <span data-inquiry-new-count>0</span>
+        </button>
+      </nav>
+
+      <div class="admin-layout admin-view" data-products-view>
         <aside class="admin-list-panel">
           <div class="admin-panel-head">
             <div>
@@ -200,9 +207,38 @@
           <p class="admin-message" data-save-message></p>
         </aside>
       </div>
+
+      <section class="admin-inquiries-view admin-view" data-inquiries-view hidden>
+        <aside class="admin-inquiry-list-panel">
+          <div class="admin-panel-head">
+            <div>
+              <p class="section-label">Customer Requests</p>
+              <h1>Inquiries</h1>
+            </div>
+            <button class="btn btn-outline admin-compact-btn" type="button" data-refresh-inquiries>Refresh</button>
+          </div>
+          <div class="admin-list-tools">
+            <input type="search" placeholder="Search inquiries" data-inquiry-search>
+            <select data-inquiry-status-filter aria-label="Inquiry status filter">
+              <option value="all">All</option>
+              <option value="new">New</option>
+              <option value="read">Read</option>
+              <option value="resolved">Resolved</option>
+            </select>
+          </div>
+          <div class="admin-inquiry-list" data-inquiry-list></div>
+        </aside>
+
+        <section class="admin-inquiry-detail-panel" data-inquiry-detail>
+          <div class="admin-inquiry-empty">
+            <h2>Select an inquiry</h2>
+            <p>Customer contact details and quotation requirements will appear here.</p>
+          </div>
+        </section>
+      </section>
     </section>
   </main>
 
-  <script src="assets/js/admin.js?v=admin-cms-20260707-structured-table-editor"></script>
+  <script src="assets/js/admin.js?v=admin-cms-20260718-inquiries"></script>
 </body>
 </html>

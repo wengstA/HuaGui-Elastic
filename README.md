@@ -78,3 +78,34 @@ CMS_PRODUCTS_BLOB_PATH
 For Vercel Blob, the preferred production setup is a project-connected Blob store using OIDC, which injects `BLOB_STORE_ID`. A legacy `BLOB_READ_WRITE_TOKEN` also works if it is present.
 
 The admin login uses an HttpOnly session cookie. By default, a successful login stays active for 12 hours, so refreshing `/admin` can open the workspace without asking for the password again. Use `Logout` to clear it immediately.
+
+## Contact Inquiry Manager
+
+The public contact form now saves customer requests through:
+
+```text
+POST /api/contact
+```
+
+Managers can sign in at `/admin`, open the `Inquiries` tab, search customer requests, and mark each inquiry as `New`, `Read`, or `Resolved`. Email delivery is not required for this workflow.
+
+Local development stores test inquiries in the ignored file:
+
+```text
+huagui_company_site/data/inquiries.json
+```
+
+Production inquiries contain customer names, email addresses, and phone numbers, so they must not use the public Blob store that serves product content and images. Create and connect a separate Vercel Private Blob Store, then configure:
+
+```text
+INQUIRIES_BLOB_STORE_ID
+```
+
+Optional inquiry settings:
+
+```text
+INQUIRIES_BLOB_READ_WRITE_TOKEN
+INQUIRIES_BLOB_PREFIX
+```
+
+`INQUIRIES_BLOB_READ_WRITE_TOKEN` is only needed for a legacy token-based connection. With Vercel OIDC, set the private store ID and use the project's automatically managed `VERCEL_OIDC_TOKEN`.
