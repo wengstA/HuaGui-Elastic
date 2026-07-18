@@ -266,7 +266,12 @@ main { padding-top: var(--nav-height); }
   overflow: hidden;
 }
 .product-main-image {
-  height: 740px;
+  --gallery-aspect: 4 / 3;
+  --gallery-max-height: 740px;
+  width: 100%;
+  height: auto;
+  max-height: var(--gallery-max-height);
+  aspect-ratio: var(--gallery-aspect);
   background: var(--color-white);
   border: 0;
   border-top: 1px solid var(--color-line);
@@ -281,11 +286,11 @@ main { padding-top: var(--nav-height); }
   width: 100%;
   height: 100%;
   object-fit: contain;
-  padding: 22px;
+  padding: 0;
 }
 .product-main-image img.is-rotated {
-  width: min(130%, 720px);
-  height: auto;
+  width: var(--gallery-rotated-width, 100%);
+  height: var(--gallery-rotated-height, 100%);
   max-width: none;
   transform: rotate(-90deg);
   transform-origin: center;
@@ -1588,14 +1593,8 @@ main { padding-top: var(--nav-height); }
   .detail-sidebar {
     gap: 20px;
   }
-  .product-main-image img {
-    padding: 20px;
-  }
   .product-main-image {
-    height: 800px;
-  }
-  .product-main-image img.is-rotated {
-    width: min(130%, 780px);
+    --gallery-max-height: 800px;
   }
   .product-thumbs {
     gap: 14px;
@@ -1615,8 +1614,7 @@ main { padding-top: var(--nav-height); }
   .navbar-links { gap: 14px; }
   .navbar-links a { font-size: 0.72rem; }
   .product-detail-layout { grid-template-columns: 280px minmax(0, 1fr) 92px; gap: 18px; }
-  .product-main-image { height: 620px; }
-  .product-main-image img.is-rotated { width: min(130%, 600px); }
+  .product-main-image { --gallery-max-height: 620px; }
   .admin-layout { grid-template-columns: 280px minmax(0, 1fr); }
   .admin-side-panel { grid-column: 1 / -1; position: static; }
   .admin-gallery-row { grid-template-columns: 82px minmax(180px, 1fr) 128px; }
@@ -1701,8 +1699,7 @@ main { padding-top: var(--nav-height); }
     grid-template-columns: minmax(0, 1fr) 66px;
     gap: 12px;
   }
-  .product-main-image { height: 420px; }
-  .product-main-image img.is-rotated { width: min(126%, 400px); }
+  .product-main-image { --gallery-max-height: 420px; }
   .product-thumbs { gap: 8px; }
   .product-thumbs button {
     height: 92px;

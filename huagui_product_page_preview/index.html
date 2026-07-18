@@ -72,9 +72,9 @@
     .thumb-img img.is-rotated{width:min(var(--thumb-media-height),calc(100% * 1.333));height:auto;max-width:none;transform:rotate(-90deg)}
 
     .main-card{background:#fafafa;border:1px solid #efefef;border-radius:2px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:34px;position:relative}
-    .main-img-wrap{--main-media-height:720px;width:100%;height:var(--main-media-height);display:flex;align-items:center;justify-content:center;background:#fff;border:1px solid #f1f1f1;overflow:hidden}
+    .main-img-wrap{--main-media-aspect:4 / 3;--main-media-max-height:720px;width:100%;height:auto;max-height:var(--main-media-max-height);aspect-ratio:var(--main-media-aspect);display:flex;align-items:center;justify-content:center;background:#fff;border:1px solid #f1f1f1;overflow:hidden}
     #mainImage{width:100%;height:100%;object-fit:contain;object-position:center;background:#fff}
-    #mainImage.is-product-closeup{object-fit:cover}
+    #mainImage.is-rotated{width:var(--main-rotated-width,100%);height:var(--main-rotated-height,100%);max-width:none;transform:rotate(-90deg)}
     .image-caption{height:38px;display:flex;align-items:center;gap:10px;color:#555;font-size:13px;font-weight:700;margin-top:18px}
     .image-caption svg{width:18px;height:18px;stroke:#111;fill:none;stroke-width:1.7}
 
@@ -112,11 +112,11 @@
       .nav{height:auto;min-height:74px;flex-wrap:wrap;gap:14px;padding:14px 20px}
       .brand,.actions{min-width:auto}.menu{order:3;width:100%;justify-content:flex-start;overflow:auto;gap:24px}.menu a{height:34px}.quote-top{display:none}
       .catalog-row{grid-template-columns:1fr;gap:8px}
-      .page{padding:18px 18px 40px}.grid{grid-template-columns:1fr}.intro h1{font-size:38px}.main-card{min-height:auto}.main-img-wrap{--main-media-height:560px}
+      .page{padding:18px 18px 40px}.grid{grid-template-columns:1fr}.intro h1{font-size:38px}.main-card{min-height:auto}.main-img-wrap{--main-media-max-height:560px}
       .side{display:block}.block{border-right:0;border-bottom:1px solid var(--line);padding-bottom:24px;margin-bottom:24px;padding-right:0}.block:last-child{border-bottom:0;margin-bottom:0}
     }
     @media (max-width:560px){
-      .thumb{grid-template-columns:62px 1fr;height:92px}.thumb-img{--thumb-media-height:74px}.main-img-wrap{--main-media-height:420px}.custom-grid{grid-template-columns:repeat(2,1fr)}
+      .thumb{grid-template-columns:62px 1fr;height:92px}.thumb-img{--thumb-media-height:74px}.main-img-wrap{--main-media-max-height:420px}.custom-grid{grid-template-columns:repeat(2,1fr)}
     }
   </style>
 </head>
@@ -192,15 +192,15 @@
         <div class="gallery-group" aria-label="Product images">
           <p class="gallery-group-title">Product Images</p>
           <div class="thumbs">
-            <button class="thumb active" data-src="assets/front-back.jpeg" data-main-src="assets/front-back-main.jpeg" data-label="Front & Back" data-caption="Product Images: Front & Back" data-rotate="true" type="button">
+            <button class="thumb active" data-src="assets/front-back.jpeg" data-label="Front & Back" data-caption="Product Images: Front & Back" data-rotate="true" type="button">
               <div><div class="num">1</div><div class="thumb-label">Front & Back</div></div>
               <div class="thumb-img"><img class="is-rotated" src="assets/front-back.jpeg" alt="Front and back view of printed waistband"></div>
             </button>
-            <button class="thumb" data-src="assets/front.jpeg" data-main-src="assets/front-main.jpeg" data-label="Front" data-caption="Product Images: Front" data-rotate="true" type="button">
+            <button class="thumb" data-src="assets/front.jpeg" data-label="Front" data-caption="Product Images: Front" data-rotate="true" type="button">
               <div><div class="num">2</div><div class="thumb-label">Front</div></div>
               <div class="thumb-img"><img class="is-rotated" src="assets/front.jpeg" alt="Front view of printed waistband"></div>
             </button>
-            <button class="thumb" data-src="assets/back.jpeg" data-main-src="assets/back-main.jpeg" data-label="Back" data-caption="Product Images: Back" data-rotate="true" type="button">
+            <button class="thumb" data-src="assets/back.jpeg" data-label="Back" data-caption="Product Images: Back" data-rotate="true" type="button">
               <div><div class="num">3</div><div class="thumb-label">Back</div></div>
               <div class="thumb-img"><img class="is-rotated" src="assets/back.jpeg" alt="Back view of printed waistband"></div>
             </button>
@@ -213,7 +213,7 @@
       </aside>
 
       <section class="main-card" aria-label="Main product image">
-        <div class="main-img-wrap"><img id="mainImage" class="is-product-closeup" src="assets/front-back-main.jpeg" alt="Front and back view of printed waistband"></div>
+        <div class="main-img-wrap"><img id="mainImage" class="is-rotated" src="assets/front-back.jpeg" alt="Front and back view of printed waistband"></div>
         <div class="image-caption"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M16 16l5 5"/><path d="M11 8v6M8 11h6"/></svg><span id="captionText">Hover or click on the left images to view: Product Images: Front & Back</span></div>
       </section>
 
@@ -262,17 +262,39 @@
 
   <script>
     const mainImage = document.getElementById('mainImage');
+    const mainImageWrap = mainImage.closest('.main-img-wrap');
     const captionText = document.getElementById('captionText');
     const thumbs = Array.from(document.querySelectorAll('.thumb'));
+    function syncMainImageLayout(){
+      if (!mainImage.naturalWidth || !mainImage.naturalHeight) return;
+      const rotated = mainImage.classList.contains('is-rotated');
+      const displayWidth = rotated ? mainImage.naturalHeight : mainImage.naturalWidth;
+      const displayHeight = rotated ? mainImage.naturalWidth : mainImage.naturalHeight;
+      mainImageWrap.style.setProperty('--main-media-aspect', `${displayWidth} / ${displayHeight}`);
+      requestAnimationFrame(() => {
+        if (rotated) {
+          mainImage.style.setProperty('--main-rotated-width', `${mainImageWrap.clientHeight}px`);
+          mainImage.style.setProperty('--main-rotated-height', `${mainImageWrap.clientWidth}px`);
+        } else {
+          mainImage.style.removeProperty('--main-rotated-width');
+          mainImage.style.removeProperty('--main-rotated-height');
+        }
+      });
+    }
+    mainImage.addEventListener('load', syncMainImageLayout);
+    syncMainImageLayout();
+    if ('ResizeObserver' in window) {
+      const mainImageResizeObserver = new ResizeObserver(syncMainImageLayout);
+      mainImageResizeObserver.observe(mainImageWrap);
+    }
     function setImage(btn){
       const src = btn.getAttribute('data-src');
-      const mainSrc = btn.getAttribute('data-main-src') || src;
       const label = btn.getAttribute('data-label');
       const caption = btn.getAttribute('data-caption') || label;
-      const isProductCloseup = btn.hasAttribute('data-main-src');
-      mainImage.src = mainSrc;
+      const shouldRotate = btn.getAttribute('data-rotate') === 'true';
+      mainImage.src = src;
       mainImage.alt = label + ' view of printed waistband';
-      mainImage.classList.toggle('is-product-closeup', isProductCloseup);
+      mainImage.classList.toggle('is-rotated', shouldRotate);
       captionText.textContent = 'Hover or click on the left images to view: ' + caption;
       thumbs.forEach(t => t.classList.remove('active'));
       btn.classList.add('active');

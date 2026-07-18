@@ -731,6 +731,26 @@ function initProductsPage() {
 }
 
 // ========== Product Detail Page ==========
+function syncProductMainImageLayout(image) {
+  const frame = image && image.closest('.product-main-image');
+  if (!frame || !image.naturalWidth || !image.naturalHeight) return;
+
+  const rotated = image.classList.contains('is-rotated');
+  const displayWidth = rotated ? image.naturalHeight : image.naturalWidth;
+  const displayHeight = rotated ? image.naturalWidth : image.naturalHeight;
+  frame.style.setProperty('--gallery-aspect', `${displayWidth} / ${displayHeight}`);
+
+  requestAnimationFrame(() => {
+    if (rotated) {
+      image.style.setProperty('--gallery-rotated-width', `${frame.clientHeight}px`);
+      image.style.setProperty('--gallery-rotated-height', `${frame.clientWidth}px`);
+    } else {
+      image.style.removeProperty('--gallery-rotated-width');
+      image.style.removeProperty('--gallery-rotated-height');
+    }
+  });
+}
+
 function initProductDetailPage() {
   const page = document.getElementById('productDetail');
   if (!page) return;
@@ -913,11 +933,19 @@ function initProductDetailPage() {
     </section>
   `;
 
+  const mainImage = page.querySelector('.detail-main-column .product-main-image img');
+  const syncMainImage = () => syncProductMainImageLayout(mainImage);
+  mainImage.addEventListener('load', syncMainImage);
+  syncMainImage();
+  if ('ResizeObserver' in window) {
+    const galleryResizeObserver = new ResizeObserver(syncMainImage);
+    galleryResizeObserver.observe(mainImage.parentElement);
+  }
+
   page.querySelectorAll('[data-gallery-src]').forEach(button => {
     button.addEventListener('click', () => {
       page.querySelectorAll('[data-gallery-src]').forEach(item => item.classList.remove('active'));
       button.classList.add('active');
-      const mainImage = page.querySelector('.detail-main-column .product-main-image img');
       const caption = page.querySelector('[data-gallery-caption]');
       mainImage.src = button.dataset.gallerySrc;
       mainImage.alt = button.dataset.galleryAlt;
