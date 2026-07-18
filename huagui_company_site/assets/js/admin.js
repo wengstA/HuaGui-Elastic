@@ -18,6 +18,16 @@ const TAG_LABELS = {
   activewear: 'Activewear'
 };
 
+const DEFAULT_FEATURES = [
+  'Stable stretch and recovery',
+  'Vivid, wash-resistant printing',
+  'Soft skin-contact comfort',
+  'Custom widths, logos, and colors',
+  'Bulk-ready quality consistency'
+];
+
+const LEGACY_SPEC_LABELS = ['Width', 'Material', 'Printing', 'Handfeel'];
+
 const IMAGE_LABEL_PRESETS = [
   { label: 'Front & Back', group: 'Product Display' },
   { label: 'Front', group: 'Product Display' },
@@ -28,7 +38,7 @@ const IMAGE_LABEL_PRESETS = [
 
 const PLACEHOLDER_IMAGE = 'assets/images/product-elastic-sample-board.webp';
 const LOCAL_ADMIN_URL = 'http://127.0.0.1:3000/admin';
-const ADMIN_SCRIPT_VERSION = 'admin-cms-20260707-auto-url-name';
+const ADMIN_SCRIPT_VERSION = 'admin-cms-20260707-structured-table-editor';
 
 if (window.location.protocol === 'file:') {
   window.location.replace(LOCAL_ADMIN_URL);
@@ -128,6 +138,77 @@ function linesToArray(value) {
 
 function arrayToLines(value) {
   return Array.isArray(value) ? value.join('\n') : '';
+}
+
+function normalizeStringList(value, fallback = []) {
+  if (Array.isArray(value)) {
+    return value.map(item => String(item || '').trim()).filter(Boolean);
+  }
+  if (typeof value === 'string') {
+    return linesToArray(value);
+  }
+  return [...fallback];
+}
+
+function normalizeSpecRow(item, index = 0) {
+  if (item && typeof item === 'object') {
+    const label = String(item.label || item.name || item.key || item.title || '').trim();
+    const value = String(item.value || item.text || item.detail || item.content || '').trim();
+    if (!label && !value) return null;
+    return {
+      label: label || (LEGACY_SPEC_LABELS[index] || `Specification ${index + 1}`),
+      value
+    };
+  }
+
+  const text = String(item || '').trim();
+  if (!text) return null;
+  const match = text.match(/^([^:：]{1,40})[:：]\s*(.+)$/);
+  if (match) {
+    return {
+      label: match[1].trim(),
+      value: match[2].trim()
+    };
+  }
+  return {
+    label: LEGACY_SPEC_LABELS[index] || `Specification ${index + 1}`,
+    value: text
+  };
+}
+
+function normalizeSpecRows(value) {
+  const rows = Array.isArray(value)
+    ? value
+    : (typeof value === 'string' ? value.split(/\r?\n/) : []);
+  return rows
+    .map((item, index) => normalizeSpecRow(item, index))
+    .filter(Boolean);
+}
+
+function hasStructuredSpecs(value) {
+  return Array.isArray(value) && value.some(item => item && typeof item === 'object');
+}
+
+function productSpecRows(source) {
+  const rows = normalizeSpecRows(source.specs);
+  if (hasStructuredSpecs(source.specs) || !rows.length) return rows;
+
+  const labels = new Set(rows.map(row => row.label.toLowerCase()));
+  const applications = normalizeStringList(source.applications);
+  const customOptions = normalizeStringList(source.customOptions);
+  const legacyDetailRows = [
+    { label: 'Color', value: 'Pantone or fabric color matching available' },
+    { label: 'Elasticity', value: 'Custom stretch tension and recovery control' },
+    { label: 'Usage', value: applications.join(', ') },
+    { label: 'Packing', value: customOptions[3] || 'Roll length and carton packing' }
+  ];
+
+  legacyDetailRows.forEach(row => {
+    if (!row.value || labels.has(row.label.toLowerCase())) return;
+    rows.push(row);
+    labels.add(row.label.toLowerCase());
+  });
+  return rows;
 }
 
 function statusLabel(product) {
@@ -320,6 +401,10 @@ function cacheElements() {
   els.upload = $('[data-upload]');
   els.uploadStatus = $('[data-upload-status]');
   els.galleryEditor = $('[data-gallery-editor]');
+  els.featureEditor = $('[data-feature-editor]');
+  els.specEditor = $('[data-spec-editor]');
+  els.addFeature = $('[data-add-feature]');
+  els.addSpec = $('[data-add-spec]');
   els.sideStatus = $('[data-side-status]');
   els.sideUpdated = $('[data-side-updated]');
   els.sideImage = $('[data-side-image]');
@@ -461,10 +546,11 @@ function normalizeProduct(product, index = 0) {
     image,
     gallery,
     tags: Array.isArray(source.tags) ? source.tags : [],
-    specs: Array.isArray(source.specs) ? source.specs : [],
+    features: normalizeStringList(source.features, DEFAULT_FEATURES),
+    specs: productSpecRows(source),
     intro: String(source.intro || '').trim(),
-    applications: Array.isArray(source.applications) ? source.applications : [],
-    customOptions: Array.isArray(source.customOptions) ? source.customOptions : [],
+    applications: normalizeStringList(source.applications),
+    customOptions: normalizeStringList(source.customOptions),
     createdAt: source.createdAt || new Date().toISOString(),
     updatedAt: source.updatedAt || ''
   };
@@ -531,6 +617,8 @@ function renderEditor() {
     els.editorTitle.textContent = 'No Product Selected';
     els.editorStatus.textContent = 'Draft';
     els.galleryEditor.innerHTML = '<p class="admin-empty">Create a product to start editing.</p>';
+    if (els.featureEditor) els.featureEditor.innerHTML = '<p class="admin-empty">Create a product to start editing.</p>';
+    if (els.specEditor) els.specEditor.innerHTML = '<p class="admin-empty">Create a product to start editing.</p>';
     els.unpublish.disabled = true;
     els.delete.disabled = true;
     return;
@@ -544,9 +632,10 @@ function renderEditor() {
   field('category').value = product.category;
   field('sortOrder').value = product.sortOrder || '';
   field('intro').value = product.intro || '';
-  field('specs').value = arrayToLines(product.specs);
   field('applications').value = arrayToLines(product.applications);
   field('customOptions').value = arrayToLines(product.customOptions);
+  renderFeatureEditor(product.features);
+  renderSpecEditor(product.specs);
   $all('[data-tags] input[type="checkbox"]').forEach(input => {
     input.checked = product.tags.includes(input.value);
   });
@@ -565,6 +654,94 @@ function renderSidePreview() {
   els.sideName.textContent = product.name || 'New Product';
   els.sideCategory.textContent = CATEGORY_LABELS[product.category] || CATEGORY_LABELS.mens;
   els.sideTags.innerHTML = (product.tags || []).map(tag => `<span>${escapeHtml(TAG_LABELS[tag] || tag)}</span>`).join('');
+}
+
+function renderFeatureEditor(features = []) {
+  if (!els.featureEditor) return;
+  const rows = features.length ? features : [''];
+  els.featureEditor.innerHTML = rows.map((feature, index) => `
+    <div class="admin-feature-row" data-feature-row>
+      <input type="text" value="${escapeHtml(feature)}" data-feature-input aria-label="Feature ${index + 1}" placeholder="Soft and smooth hand feel">
+      <button class="admin-row-remove" type="button" data-remove-feature="${index}" ${rows.length === 1 ? 'disabled' : ''} aria-label="Remove feature">&times;</button>
+    </div>
+  `).join('');
+}
+
+function renderSpecEditor(specs = []) {
+  if (!els.specEditor) return;
+  const rows = specs.length ? specs : [{ label: '', value: '' }];
+  els.specEditor.innerHTML = `
+    <div class="admin-spec-row admin-spec-head" aria-hidden="true">
+      <span>Label</span>
+      <span>Value</span>
+      <span></span>
+    </div>
+    ${rows.map((spec, index) => `
+      <div class="admin-spec-row" data-spec-row>
+        <input type="text" value="${escapeHtml(spec.label)}" data-spec-label aria-label="Specification label ${index + 1}" placeholder="Material">
+        <input type="text" value="${escapeHtml(spec.value)}" data-spec-value aria-label="Specification value ${index + 1}" placeholder="Polyester / Nylon + Spandex">
+        <button class="admin-row-remove" type="button" data-remove-spec="${index}" ${rows.length === 1 ? 'disabled' : ''} aria-label="Remove specification row">&times;</button>
+      </div>
+    `).join('')}
+  `;
+}
+
+function collectFeaturesFromEditor() {
+  if (!els.featureEditor) return [];
+  return $all('[data-feature-input]', els.featureEditor)
+    .map(input => input.value.trim())
+    .filter(Boolean);
+}
+
+function collectSpecsFromEditor() {
+  if (!els.specEditor) return [];
+  return $all('[data-spec-row]', els.specEditor)
+    .map((row, index) => {
+      const label = $('[data-spec-label]', row);
+      const value = $('[data-spec-value]', row);
+      const labelText = label ? label.value.trim() : '';
+      const valueText = value ? value.value.trim() : '';
+      if (!labelText && !valueText) return null;
+      return {
+        label: labelText || (LEGACY_SPEC_LABELS[index] || `Specification ${index + 1}`),
+        value: valueText
+      };
+    })
+    .filter(Boolean);
+}
+
+function addFeatureRow() {
+  const rows = collectFeaturesFromEditor();
+  rows.push('');
+  renderFeatureEditor(rows);
+  const inputs = $all('[data-feature-input]', els.featureEditor);
+  const lastInput = inputs[inputs.length - 1];
+  if (lastInput) lastInput.focus();
+  markDirty();
+}
+
+function addSpecRow() {
+  const rows = collectSpecsFromEditor();
+  rows.push({ label: '', value: '' });
+  renderSpecEditor(rows);
+  const inputs = $all('[data-spec-label]', els.specEditor);
+  const lastInput = inputs[inputs.length - 1];
+  if (lastInput) lastInput.focus();
+  markDirty();
+}
+
+function removeFeatureRow(index) {
+  const rows = collectFeaturesFromEditor();
+  rows.splice(index, 1);
+  renderFeatureEditor(rows);
+  markDirty();
+}
+
+function removeSpecRow(index) {
+  const rows = collectSpecsFromEditor();
+  rows.splice(index, 1);
+  renderSpecEditor(rows);
+  markDirty();
 }
 
 function renderGalleryEditor() {
@@ -617,7 +794,8 @@ function collectProduct(options = {}) {
     sortOrder: Number(field('sortOrder').value || existing.sortOrder || 0),
     image,
     tags,
-    specs: linesToArray(field('specs').value),
+    features: collectFeaturesFromEditor(),
+    specs: collectSpecsFromEditor(),
     intro: field('intro').value.trim(),
     applications: linesToArray(field('applications').value),
     customOptions: linesToArray(field('customOptions').value)
@@ -699,6 +877,7 @@ function createDraftProduct() {
     category: 'mens',
     sortOrder: nextOrder,
     tags: ['printed'],
+    features: [...DEFAULT_FEATURES],
     specs: [],
     applications: [],
     customOptions: [],
@@ -1077,6 +1256,12 @@ function bindEvents() {
   if (els.duplicateProduct) {
     els.duplicateProduct.addEventListener('click', duplicateCurrentProduct);
   }
+  if (els.addFeature) {
+    els.addFeature.addEventListener('click', addFeatureRow);
+  }
+  if (els.addSpec) {
+    els.addSpec.addEventListener('click', addSpecRow);
+  }
   els.saveDraft.addEventListener('click', () => saveProducts('draft'));
   els.publish.addEventListener('click', publishProduct);
   els.unpublish.addEventListener('click', unpublishProduct);
@@ -1105,6 +1290,13 @@ function bindEvents() {
       els.form.dataset.slugMode = 'auto';
     }
     markDirty();
+  });
+
+  els.form.addEventListener('click', event => {
+    const removeFeature = event.target.closest('[data-remove-feature]');
+    const removeSpec = event.target.closest('[data-remove-spec]');
+    if (removeFeature) removeFeatureRow(Number(removeFeature.dataset.removeFeature));
+    if (removeSpec) removeSpecRow(Number(removeSpec.dataset.removeSpec));
   });
 
   els.galleryEditor.addEventListener('input', event => {

@@ -13,7 +13,7 @@
   <link rel="icon" type="image/png" href="assets/images/huagui-logo.png">
   <link rel="apple-touch-icon" href="assets/images/huagui-logo.png">
   <meta name="theme-color" content="#880830">
-  <link rel="stylesheet" href="assets/css/style.css?v=admin-cms-20260707-no-debug">
+  <link rel="stylesheet" href="assets/css/style.css?v=admin-cms-20260707-structured-table-editor">
 </head>
 <body class="admin-body">
   <main class="admin-shell" id="adminApp">
@@ -126,21 +126,38 @@
               <textarea name="intro" rows="4"></textarea>
             </label>
 
+            <section class="admin-structured-section">
+              <div class="admin-section-row">
+                <div>
+                  <p class="section-label">Features</p>
+                  <h3>Product Selling Points</h3>
+                </div>
+                <button class="btn btn-outline admin-compact-btn" type="button" data-add-feature>Add Feature</button>
+              </div>
+              <div class="admin-feature-editor" data-feature-editor></div>
+            </section>
+
+            <section class="admin-structured-section">
+              <div class="admin-section-row">
+                <div>
+                  <p class="section-label">Specifications</p>
+                  <h3>Specification Table</h3>
+                </div>
+                <button class="btn btn-outline admin-compact-btn" type="button" data-add-spec>Add Row</button>
+              </div>
+              <div class="admin-spec-editor" data-spec-editor></div>
+            </section>
+
             <div class="admin-form-grid">
-              <label>
-                <span>Specifications</span>
-                <textarea name="specs" rows="5"></textarea>
-              </label>
               <label>
                 <span>Applications</span>
                 <textarea name="applications" rows="5"></textarea>
               </label>
+              <label>
+                <span>Custom Options</span>
+                <textarea name="customOptions" rows="5"></textarea>
+              </label>
             </div>
-
-            <label class="admin-full-field">
-              <span>Custom Options</span>
-              <textarea name="customOptions" rows="4"></textarea>
-            </label>
 
             <section class="admin-images-section">
               <div class="admin-section-row">
@@ -183,6 +200,6 @@
     </section>
   </main>
 
-  <script src="assets/js/admin.js?v=admin-cms-20260707-auto-url-name"></script>
+  <script src="assets/js/admin.js?v=admin-cms-20260707-structured-table-editor"></script>
 </body>
 </html>

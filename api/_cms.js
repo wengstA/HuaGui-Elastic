@@ -17,6 +17,16 @@ const IMAGE_LABEL_PRESETS = [
   { label: 'Application', group: 'Application' }
 ];
 
+const DEFAULT_FEATURES = [
+  'Stable stretch and recovery',
+  'Vivid, wash-resistant printing',
+  'Soft skin-contact comfort',
+  'Custom widths, logos, and colors',
+  'Bulk-ready quality consistency'
+];
+
+const LEGACY_SPEC_LABELS = ['Width', 'Material', 'Printing', 'Handfeel'];
+
 const SESSION_COOKIE = 'huagui_admin';
 const DEFAULT_SESSION_MAX_AGE_SECONDS = 12 * 60 * 60;
 const PRODUCTS_BLOB_PATH = process.env.CMS_PRODUCTS_BLOB_PATH || 'cms/products.json';
@@ -83,6 +93,77 @@ function toStringArray(value) {
     return value.split(/\r?\n|,/).map(item => item.trim()).filter(Boolean);
   }
   return [];
+}
+
+function toFeatureArray(value) {
+  if (Array.isArray(value)) {
+    return value.map(item => String(item || '').trim()).filter(Boolean);
+  }
+  if (typeof value === 'string') {
+    return value.split(/\r?\n/).map(item => item.trim()).filter(Boolean);
+  }
+  return [...DEFAULT_FEATURES];
+}
+
+function toSpecRow(item, index = 0) {
+  if (item && typeof item === 'object') {
+    const label = String(item.label || item.name || item.key || item.title || '').trim();
+    const value = String(item.value || item.text || item.detail || item.content || '').trim();
+    if (!label && !value) return null;
+    return {
+      label: label || (LEGACY_SPEC_LABELS[index] || `Specification ${index + 1}`),
+      value
+    };
+  }
+
+  const text = String(item || '').trim();
+  if (!text) return null;
+  const match = text.match(/^([^:：]{1,40})[:：]\s*(.+)$/);
+  if (match) {
+    return {
+      label: match[1].trim(),
+      value: match[2].trim()
+    };
+  }
+  return {
+    label: LEGACY_SPEC_LABELS[index] || `Specification ${index + 1}`,
+    value: text
+  };
+}
+
+function toSpecRows(value) {
+  const rows = Array.isArray(value)
+    ? value
+    : (typeof value === 'string' ? value.split(/\r?\n/) : []);
+  return rows
+    .map((item, index) => toSpecRow(item, index))
+    .filter(Boolean);
+}
+
+function hasStructuredSpecs(value) {
+  return Array.isArray(value) && value.some(item => item && typeof item === 'object');
+}
+
+function toProductSpecRows(source) {
+  const rows = toSpecRows(source.specs);
+  if (hasStructuredSpecs(source.specs) || !rows.length) return rows;
+
+  const labels = new Set(rows.map(row => row.label.toLowerCase()));
+  const applications = toStringArray(source.applications);
+  const customOptions = toStringArray(source.customOptions);
+  const legacyDetailRows = [
+    { label: 'Color', value: 'Pantone or fabric color matching available' },
+    { label: 'Elasticity', value: 'Custom stretch tension and recovery control' },
+    { label: 'Usage', value: applications.join(', ') },
+    { label: 'Packing', value: customOptions[3] || 'Roll length and carton packing' }
+  ];
+
+  legacyDetailRows.forEach(row => {
+    if (!row.value || labels.has(row.label.toLowerCase())) return;
+    rows.push(row);
+    labels.add(row.label.toLowerCase());
+  });
+  return rows;
 }
 
 function slugify(value) {
@@ -173,7 +254,8 @@ function normalizeProduct(product, index = 0) {
     image,
     gallery,
     tags: toStringArray(source.tags),
-    specs: toStringArray(source.specs),
+    features: toFeatureArray(source.features),
+    specs: toProductSpecRows(source),
     intro: String(source.intro || '').trim(),
     applications: toStringArray(source.applications),
     customOptions: toStringArray(source.customOptions),

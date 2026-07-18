@@ -1,18 +1,17 @@
 // ========== Global Contact ==========
 const CONTACT_INFO = {
-  email: 'sales@huaguielastic.com',
+  email: 'evenzheng@vip.163.com',
   address: 'No. 1 Jintian Road, Xiashan, Chaonan District, Shantou, Guangdong, China',
   tel: '+86 0754 8776 3266',
   people: [
     {
       name: 'Mr. Zheng',
       mobileWechat: '+86 13822883266',
-      whatsapp: '+86 13822883266'
+      whatsapp: '+86 13531183266'
     },
     {
       name: 'Mr. Zhou',
-      mobileWechat: '+86 13502917266',
-      whatsapp: '+86 13502917266'
+      mobileWechat: '+86 13433396966'
     }
   ]
 };
@@ -21,7 +20,7 @@ window.HUAGUI_CONTACT_INFO = CONTACT_INFO;
 
 function getContactCardsHtml() {
   const contactRows = CONTACT_INFO.people.map(person => `
-    <p>${person.name}<br>Mobile / WeChat: ${person.mobileWechat}<br>WhatsApp: ${person.whatsapp}</p>
+    <p>${person.name}<br>Mobile / WeChat: ${person.mobileWechat}${person.whatsapp ? `<br>WhatsApp: ${person.whatsapp}` : ''}</p>
   `).join('');
 
   return `
@@ -226,6 +225,16 @@ const CATEGORY_LABELS = {
   activewear: 'Activewear Elastics'
 };
 
+const DEFAULT_FEATURES = [
+  'Stable stretch and recovery',
+  'Vivid, wash-resistant printing',
+  'Soft skin-contact comfort',
+  'Custom widths, logos, and colors',
+  'Bulk-ready quality consistency'
+];
+
+const LEGACY_SPEC_LABELS = ['Width', 'Material', 'Printing', 'Handfeel'];
+
 const IMAGE_LABEL_PRESETS = [
   { label: 'Front & Back', group: 'Product Display' },
   { label: 'Front', group: 'Product Display' },
@@ -401,6 +410,79 @@ function normalizeArray(value) {
   return [];
 }
 
+function normalizeFeatureList(value) {
+  if (Array.isArray(value)) return value.map(item => String(item || '').trim()).filter(Boolean);
+  if (typeof value === 'string') return value.split(/\r?\n/).map(item => item.trim()).filter(Boolean);
+  return [];
+}
+
+function normalizeSpecRow(item, index = 0) {
+  if (item && typeof item === 'object') {
+    const label = String(item.label || item.name || item.key || item.title || '').trim();
+    const value = String(item.value || item.text || item.detail || item.content || '').trim();
+    if (!label && !value) return null;
+    return {
+      label: label || (LEGACY_SPEC_LABELS[index] || `Specification ${index + 1}`),
+      value
+    };
+  }
+
+  const text = String(item || '').trim();
+  if (!text) return null;
+  const match = text.match(/^([^:：]{1,40})[:：]\s*(.+)$/);
+  if (match) {
+    return {
+      label: match[1].trim(),
+      value: match[2].trim()
+    };
+  }
+  return {
+    label: LEGACY_SPEC_LABELS[index] || `Specification ${index + 1}`,
+    value: text
+  };
+}
+
+function normalizeSpecRows(value) {
+  const rows = Array.isArray(value)
+    ? value
+    : (typeof value === 'string' ? value.split(/\r?\n/) : []);
+  return rows
+    .map((item, index) => normalizeSpecRow(item, index))
+    .filter(Boolean);
+}
+
+function hasStructuredSpecs(value) {
+  return Array.isArray(value) && value.some(item => item && typeof item === 'object');
+}
+
+function productSpecRows(source) {
+  const rows = normalizeSpecRows(source.specs);
+  if (hasStructuredSpecs(source.specs) || !rows.length) return rows;
+
+  const labels = new Set(rows.map(row => row.label.toLowerCase()));
+  const applications = normalizeArray(source.applications);
+  const customOptions = normalizeArray(source.customOptions);
+  const legacyDetailRows = [
+    { label: 'Color', value: 'Pantone or fabric color matching available' },
+    { label: 'Elasticity', value: 'Custom stretch tension and recovery control' },
+    { label: 'Usage', value: applications.join(', ') },
+    { label: 'Packing', value: customOptions[3] || 'Roll length and carton packing' }
+  ];
+
+  legacyDetailRows.forEach(row => {
+    if (!row.value || labels.has(row.label.toLowerCase())) return;
+    rows.push(row);
+    labels.add(row.label.toLowerCase());
+  });
+  return rows;
+}
+
+function specSummary(specs) {
+  return normalizeSpecRows(specs)
+    .map(spec => (spec.label && spec.value ? `${spec.label}: ${spec.value}` : spec.value || spec.label))
+    .filter(Boolean);
+}
+
 function normalizeImageLabelKey(value) {
   return String(value || '').trim().toLowerCase().replace(/&/g, 'and').replace(/\s+/g, ' ');
 }
@@ -478,7 +560,8 @@ function normalizeProductForSite(product, index = 0, includeDraft = false) {
     sortOrder: Number.isFinite(Number(source.sortOrder)) ? Number(source.sortOrder) : (index + 1) * 10,
     image: String(source.image || '').trim(),
     tags: normalizeArray(source.tags),
-    specs: normalizeArray(source.specs),
+    features: normalizeFeatureList(source.features),
+    specs: productSpecRows(source),
     intro: String(source.intro || '').trim(),
     applications: normalizeArray(source.applications),
     customOptions: normalizeArray(source.customOptions)
@@ -573,7 +656,7 @@ function renderProductCards(containerId, items) {
         <p class="material">${escapeHtml(p.categoryLabel)}</p>
         <h3><a href="product-detail.html?slug=${encodeURIComponent(p.slug)}">${escapeHtml(p.name)}</a></h3>
         <div class="tag-row">${p.tags.map(tag => `<span>${escapeHtml(formatTag(tag))}</span>`).join('')}</div>
-        <div class="specs">${p.specs.map(s => `<span>${escapeHtml(s)}</span>`).join('')}</div>
+        <div class="specs">${specSummary(p.specs).slice(0, 4).map(s => `<span>${escapeHtml(s)}</span>`).join('')}</div>
         <a href="product-detail.html?slug=${encodeURIComponent(p.slug)}" class="btn-inquiry">View Details</a>
       </div>
     </article>
@@ -705,23 +788,16 @@ function initProductDetailPage() {
     groups.get(image.group).push({ ...image, index });
     return groups;
   }, new Map());
-  const productFeatures = [
-    'Stable stretch and recovery',
-    'Vivid, wash-resistant printing',
-    'Soft skin-contact comfort',
-    'Custom widths, logos, and colors',
-    'Bulk-ready quality consistency'
-  ];
-  const specificationRows = [
-    ['Material', product.specs[1] || 'Nylon / Polyester / Spandex'],
-    ['Width', product.specs[0] || 'Custom width available'],
-    ['Printing', product.specs[2] || 'Custom printed logo'],
-    ['Handfeel', product.specs[3] || 'Soft skin-contact finish'],
-    ['Color', 'Pantone or fabric color matching available'],
-    ['Elasticity', 'Custom stretch tension and recovery control'],
-    ['Usage', product.applications.join(', ')],
-    ['Packing', product.customOptions[3] || 'Roll length and carton packing']
-  ];
+  const productFeatures = product.features.length ? product.features : DEFAULT_FEATURES;
+  const fallbackSpecificationRows = [
+    { label: 'Material', value: 'Nylon / Polyester / Spandex' },
+    { label: 'Width', value: 'Custom width available' },
+    { label: 'Color', value: 'Pantone or fabric color matching available' },
+    { label: 'Elasticity', value: 'Custom stretch tension and recovery control' },
+    { label: 'Usage', value: product.applications.join(', ') },
+    { label: 'Packing', value: product.customOptions[3] || 'Roll length and carton packing' }
+  ].filter(row => row.value);
+  const specificationRows = product.specs.length ? product.specs : fallbackSpecificationRows;
 
   document.title = `Huagui Elastic - ${product.name}`;
   page.innerHTML = `
@@ -797,7 +873,7 @@ function initProductDetailPage() {
                 <h3 id="product-specifications-title">Specifications</h3>
                 <table class="product-spec-table" aria-label="Product specifications">
                   <tbody>
-                    ${specificationRows.map(([label, value]) => `<tr><th scope="row">${escapeHtml(label)}</th><td>${escapeHtml(value)}</td></tr>`).join('')}
+                    ${specificationRows.map(spec => `<tr><th scope="row">${escapeHtml(spec.label)}</th><td>${escapeHtml(spec.value)}</td></tr>`).join('')}
                   </tbody>
                 </table>
               </section>
