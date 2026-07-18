@@ -9,6 +9,14 @@ This workspace continues a mobile ChatGPT thread about a Huagui Elastic B2B prod
 - Prefer a locally openable demo and give the exact file path or local URL after changes.
 - Verify visual changes when working on product pages, especially image orientation and page layout.
 
+## Deployment Source of Truth and Required Evaluation
+
+- `huagui_product_page_preview/index.html` is a design-only preview. It is **not** the page served by the Vercel deployment, so changes there alone must never be treated as a production-site update.
+- The deployed site is `huagui_company_site/`: `vercel.json` rewrites the root and HTML routes to that directory. Make product changes there when the user expects the online site to change.
+- Published product content is loaded through `/api/products`. Its local fallback is `huagui_company_site/data/products.json`; if Vercel Blob is configured, the Blob document (`cms/products.json`) takes precedence. A code deployment does not overwrite existing Blob CMS data.
+- For any product-page or tag change intended for the live site, update and evaluate all applicable production surfaces: the product data, product-detail rendering, product-list filters, tag-label mappings, and the admin editor's available tags.
+- Before handoff, verify the formal product URL (for example, `huagui_company_site/product-detail.html?slug=printed-waistbands`) and the product-list filtering behavior. State separately whether the change still needs a code deployment and, when Blob CMS is enabled, an admin save/publish or Blob-data update.
+
 ## Current Product Page Requirements
 
 - Brand/product context: Huagui Elastic, product page for `Printed Waistbands` under men's underwear elastics.
@@ -32,5 +40,7 @@ This workspace continues a mobile ChatGPT thread about a Huagui Elastic B2B prod
 
 ## Current Files
 
-- Demo entry point: `huagui_product_page_preview/index.html`
-- Product images: `huagui_product_page_preview/assets/`
+- Design-preview entry point: `huagui_product_page_preview/index.html`
+- Design-preview images: `huagui_product_page_preview/assets/`
+- Deployed site source: `huagui_company_site/`
+- Local product-data fallback: `huagui_company_site/data/products.json`

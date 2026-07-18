@@ -278,7 +278,7 @@ const DEFAULT_PRODUCTS = [
         alt: 'Printed waistband application on underwear'
       }
     ],
-    tags: ['printed', 'waistband'],
+    tags: ['printed', 'debossed', 'embossed', 'lurex', 'waistband'],
     specs: ['25-45mm width', 'Nylon/Polyester/Spandex', 'Logo print', 'Soft handfeel'],
     intro: 'Custom printed elastic waistbands for men\'s underwear brands, designed for clean logo presentation, soft skin contact, and stable recovery in repeat production.',
     applications: ['Men\'s boxer briefs', 'Briefs', 'Trunks', 'Loungewear waistbands'],
@@ -667,6 +667,9 @@ function formatTag(tag) {
   const labels = {
     'printed': 'Printed',
     'jacquard': 'Jacquard',
+    'debossed': 'Debossed',
+    'embossed': 'Embossed',
+    'lurex': 'Lurex',
     'plain': 'Plain',
     'fold-over': 'Fold Over',
     'picot': 'Picot',

@@ -8,6 +8,9 @@ const CATEGORY_LABELS = {
 const TAG_LABELS = {
   printed: 'Printed',
   jacquard: 'Jacquard',
+  debossed: 'Debossed',
+  embossed: 'Embossed',
+  lurex: 'Lurex',
   plain: 'Plain',
   'fold-over': 'Fold Over',
   picot: 'Picot',
