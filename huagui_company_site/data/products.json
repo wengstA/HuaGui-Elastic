@@ -48,10 +48,42 @@
         "waistband"
       ],
       "specs": [
-        "25-45mm width",
-        "Nylon/Polyester/Spandex",
-        "Logo print",
-        "Soft handfeel"
+        {
+          "label": "Item No.",
+          "value": ""
+        },
+        {
+          "label": "Width",
+          "value": "25-45mm width"
+        },
+        {
+          "label": "Material",
+          "value": "Nylon/Polyester/Spandex"
+        },
+        {
+          "label": "Printing",
+          "value": "Logo print"
+        },
+        {
+          "label": "Handfeel",
+          "value": "Soft handfeel"
+        },
+        {
+          "label": "Color",
+          "value": "Pantone or fabric color matching available"
+        },
+        {
+          "label": "Elasticity",
+          "value": "Custom stretch tension and recovery control"
+        },
+        {
+          "label": "Usage",
+          "value": "Men's boxer briefs, Briefs, Trunks, Loungewear waistbands"
+        },
+        {
+          "label": "Packing",
+          "value": "Roll length and carton packing"
+        }
       ],
       "intro": "Custom printed elastic waistbands for men's underwear brands, designed for clean logo presentation, soft skin contact, and stable recovery in repeat production.",
       "applications": [

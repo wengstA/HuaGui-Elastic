@@ -279,7 +279,17 @@ const DEFAULT_PRODUCTS = [
       }
     ],
     tags: ['printed', 'debossed', 'embossed', 'lurex', 'waistband'],
-    specs: ['25-45mm width', 'Nylon/Polyester/Spandex', 'Logo print', 'Soft handfeel'],
+    specs: [
+      { label: 'Item No.', value: '' },
+      { label: 'Width', value: '25-45mm width' },
+      { label: 'Material', value: 'Nylon/Polyester/Spandex' },
+      { label: 'Printing', value: 'Logo print' },
+      { label: 'Handfeel', value: 'Soft handfeel' },
+      { label: 'Color', value: 'Pantone or fabric color matching available' },
+      { label: 'Elasticity', value: 'Custom stretch tension and recovery control' },
+      { label: 'Usage', value: "Men's boxer briefs, Briefs, Trunks, Loungewear waistbands" },
+      { label: 'Packing', value: 'Roll length and carton packing' }
+    ],
     intro: 'Custom printed elastic waistbands for men\'s underwear brands, designed for clean logo presentation, soft skin contact, and stable recovery in repeat production.',
     applications: ['Men\'s boxer briefs', 'Briefs', 'Trunks', 'Loungewear waistbands'],
     customOptions: ['Logo artwork and repeat layout', 'Pantone or fabric color matching', 'Width, thickness, and stretch tension', 'Roll length and carton packing']
@@ -479,7 +489,8 @@ function productSpecRows(source) {
 
 function specSummary(specs) {
   return normalizeSpecRows(specs)
-    .map(spec => (spec.label && spec.value ? `${spec.label}: ${spec.value}` : spec.value || spec.label))
+    .filter(spec => spec.value)
+    .map(spec => (spec.label ? `${spec.label}: ${spec.value}` : spec.value))
     .filter(Boolean);
 }
 
@@ -821,6 +832,10 @@ function initProductDetailPage() {
     { label: 'Packing', value: product.customOptions[3] || 'Roll length and carton packing' }
   ].filter(row => row.value);
   const specificationRows = product.specs.length ? product.specs : fallbackSpecificationRows;
+  const hasItemNoRow = specificationRows.some(spec => /^item\s*(no\.?|number)$/i.test(spec.label.trim()));
+  const displaySpecificationRows = hasItemNoRow
+    ? specificationRows
+    : [{ label: 'Item No.', value: '' }, ...specificationRows];
 
   document.title = `Huagui Elastic - ${product.name}`;
   page.innerHTML = `
@@ -896,7 +911,7 @@ function initProductDetailPage() {
                 <h3 id="product-specifications-title">Specifications</h3>
                 <table class="product-spec-table" aria-label="Product specifications">
                   <tbody>
-                    ${specificationRows.map(spec => `<tr><th scope="row">${escapeHtml(spec.label)}</th><td>${escapeHtml(spec.value)}</td></tr>`).join('')}
+                    ${displaySpecificationRows.map(spec => `<tr><th scope="row">${escapeHtml(spec.label)}</th><td>${escapeHtml(spec.value)}</td></tr>`).join('')}
                   </tbody>
                 </table>
               </section>
